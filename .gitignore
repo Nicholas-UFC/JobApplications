@@ -1,0 +1,22 @@
+# Geral
+.env
+
+# Database
+*.sqlite3
+
+# Backend
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# ruff
+.ruff_cache
+
+# Frontend
