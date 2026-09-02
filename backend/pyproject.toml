@@ -1,0 +1,82 @@
+[project]
+name = "jobapplications"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "django>=6.1",
+    "django-jazzmin>=3.0.5",
+    "django-ninja>=1.7.0",
+    "django-ninja-jwt>=5.4.5",
+    "django-simple-history>=3.13.0",
+    "psycopg[binary]>=3.3.5",
+    "python-dotenv>=1.2.3",
+]
+
+
+[tool.ruff]
+target-version = "py312"
+line-length = 79
+exclude = ["**/migrations/**"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # Erros de estilo padrão PEP 8
+    "F",   # Pyflakes: acha variáveis declaradas e não usadas
+    "I",   # isort: organiza os imports em ordem alfabética e por grupos
+    "B",   # Bugbear: detecta armadilhas e possíveis bugs invisíveis
+    "UP",  # pyupgrade: força você a usar a sintaxe mais moderna do Python 3.12
+    "SIM", # Simplify: sugere simplificações de lógica (ex: juntar vários IFs)
+    "C4",  # Comprehensions: otimiza a criação de listas e dicionários
+    "N",   # Naming: te obriga a usar nomes corretos
+    "RET", # Return: melhora a clareza de onde as suas funções devolvem os resultados
+    "A",   # Builtins: Impede que você sobrescreva variáveis do sistema (ex: list, str)
+    "PTH", # Pathlib: Obriga a usar manipulação moderna de caminhos de arquivos
+    "ARG", # Unused Arguments: Avisa se uma função tem parâmetros que não são usados
+    "PL",  # Pylint: Analisa a complexidade matemática do seu código
+    "RUF", # Ruff Specific: Regras exclusivas de segurança do Ruff
+    "DJ",  # flake8-django: Regras específicas para o ecossistema Django
+    "ANN", # Annotations: exige type hints em argumentos e retornos
+    "TCH", # Type-checking: move imports de tipo para TYPE_CHECKING
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Fixtures do pytest são injetadas por nome — o Ruff não consegue
+# detectar que são "usadas" pelo framework, então ARG é ignorado.
+# ARG: fixtures do pytest são injetadas por nome, não referenciadas diretamente.
+# PLR2004: valores literais em asserts de teste são aceitáveis e legíveis.
+# tests.py (TestCase do Django) também usa códigos de status literais em asserts.
+"**/test_*.py" = ["ARG", "PLR2004"]
+"tests.py" = ["ARG", "PLR2004"]
+# manage.py é boilerplate gerado pelo Django — suprime avisos de estilo.
+"manage.py" = ["ANN201", "PLC0415"]
+# settings.py tem strings longas de módulos do Django — quebrar foge do padrão.
+"config/settings.py" = ["E501"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+python_files = ["tests.py", "test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = ["--strict-markers", "--cov=.", "--cov-report=term-missing"]
+
+[tool.bandit]
+exclude_dirs = [".venv", "venv", "tests", "migrations"]
+targets = ["."]
+severity = "low"
+confidence = "low"
+
+[dependency-groups]
+dev = [
+    "bandit>=1.9.4",
+    "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
+    "pytest-django>=4.14.0",
+    "ruff>=0.16.5",
+]
