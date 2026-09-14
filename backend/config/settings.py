@@ -174,7 +174,7 @@ JAZZMIN_UI_TWEAKS = {
     "navbar_fixed": True,
     "sidebar_fixed": True,
     "theme": "cyborg",
-    "dark_mode_theme": "slate",
+    "default_theme_mode": "auto",
     "accent": "accent-info",
     "navbar": "navbar-dark navbar-navy",
     "footer": "footer-dark",
