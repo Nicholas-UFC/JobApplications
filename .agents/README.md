@@ -18,6 +18,7 @@ repositório. Tudo aqui é versionado no Git.
 ## Skills instaladas
 
 - `caveman` — modo de comunicação comprimido.
+- `create-readme` — cria README.md conciso, estruturado e orientado ao projeto.
 - `codebase-design` — vocabulário e disciplina de design de módulos.
 - `domain-modeling` — glossário do domínio (`CONTEXT.md`) e ADRs.
 - `grilling` — entrevista estruturada sobre decisões.
