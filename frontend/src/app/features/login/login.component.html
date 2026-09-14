@@ -1,0 +1,60 @@
+<div class="login">
+    <mat-card class="login__card">
+        <mat-card-header class="login__cabecalho">
+            <img src="favicon.ico" alt="logo" class="login__logo" />
+            <mat-card-title>JobApplications</mat-card-title>
+            <mat-card-subtitle>Acesse com suas credenciais</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+            <form [formGroup]="formulario" (ngSubmit)="entrar()">
+                
+                <mat-form-field class="login__campo" appearance="outline">
+                    <mat-label>Usuário</mat-label>
+                    <mat-icon matPrefix>person</mat-icon>
+                    <input 
+                        matInput 
+                        formControlName="usuario" 
+                        autocomplete="username" 
+                        required
+                    />
+                    @if (formulario.controls.usuario.hasError("required")) {
+                        <mat-error>Informe o Usuário.</mat-error>
+                    }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="login__campo">
+                    <mat-label>Senha</mat-label>
+                    <mat-icon matPrefix>lock</mat-icon>
+                    <input
+                        matInput
+                        formControlName="senha"
+                        type="password"
+                        autocomplete="current-password"
+                        required
+                    />
+                    @if (formulario.controls.senha.hasError("required")) {
+                        <mat-error>Informe a senha.</mat-error>
+                    }
+                </mat-form-field>
+
+                <mat-card-actions align="end">
+                    <button 
+                        mat-flat-button
+                        color="primary"
+                        type="submit"
+                        [disabled]="formulario.invalid || carregamento"
+                    >
+                        @if (carregamento) {
+                            <mat-spinner diameter="20" class="login__spinner" />
+                        } @else {
+                            <mat-icon>login</mat-icon>
+                        }
+                        Entrar
+                    </button>
+                </mat-card-actions>
+
+            </form>
+        </mat-card-content>
+    </mat-card>
+</div>
