@@ -18,3 +18,9 @@ class BaseCreateSchema(Schema):
 
 class BaseUpdateSchema(BaseCreateSchema):
     """Atualização."""
+
+
+class ErroSchema(Schema):
+    """Contrato de erro da API: {"detail": "mensagem"}."""
+
+    detail: str

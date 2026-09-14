@@ -1,8 +1,5 @@
-from django.db.models import Q, QuerySet
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import get_object_or_404
 from ninja import Router
-from ninja.errors import HttpError
 from ninja.pagination import PageNumberPagination, paginate
 
 from candidatura.models import Candidatura
@@ -12,7 +9,8 @@ from candidatura.schemas import (
     CandidaturaUpdateSchema,
 )
 from plataforma.models import Plataforma
-from utils.mensagens import ORDENACAO_INVALIDA
+from utils.crud import filtrar_ativo, filtrar_busca, obter_ou_404
+from utils.ordenacao import aplicar_ordenacao
 
 router_candidatura = Router()
 
@@ -28,27 +26,12 @@ _CAMPO_ORDENACAO_CANDIDATURA = {
     "plataforma": "plataforma__nome",
 }
 
-
-def _aplicar_ordenacao(
-    queryset: QuerySet, ordenacao: str | None, campo_validos: dict[str, str]
-) -> QuerySet:
-    if not ordenacao:
-        return queryset
-
-    invertida = ordenacao.startswith("-")
-    chave = ordenacao.lstrip("-")
-    campo = campo_validos.get(chave)
-    if campo is None:
-        permitidos = ", ".join(sorted(campo_validos))
-        raise HttpError(
-            400,
-            ORDENACAO_INVALIDA.format(
-                ordenacao=ordenacao,
-                permitidos=permitidos,
-            ),
-        )
-
-    return queryset.order_by(f"-{campo}" if invertida else campo)
+_CAMPOS_BUSCA_CANDIDATURA = (
+    "nome",
+    "empresa",
+    "observacoes",
+    "plataforma__nome",
+)
 
 
 @router_candidatura.get("/", response=list[CandidaturaSchema])
@@ -62,21 +45,17 @@ def listar_candidaturas(  # noqa: PLR0913, PLR0917
     ordenacao: str | None = None,
     **kwargs: object,  # noqa: ARG001
 ) -> list[Candidatura]:
-    candidaturas = Candidatura.objects.select_related("plataforma")
-    if ativo is not None:
-        candidaturas = candidaturas.filter(ativo=ativo)
+    candidaturas = filtrar_ativo(
+        Candidatura.objects.select_related("plataforma"), ativo
+    )
     if status:
         candidaturas = candidaturas.filter(status=status)
     if plataforma_id is not None:
         candidaturas = candidaturas.filter(plataforma_id=plataforma_id)
-    if busca:
-        candidaturas = candidaturas.filter(
-            Q(nome__icontains=busca)
-            | Q(empresa__icontains=busca)
-            | Q(observacoes__icontains=busca)
-            | Q(plataforma__nome__icontains=busca)
-        )
-    return _aplicar_ordenacao(
+    candidaturas = filtrar_busca(
+        candidaturas, busca, _CAMPOS_BUSCA_CANDIDATURA
+    )
+    return aplicar_ordenacao(
         candidaturas, ordenacao, _CAMPO_ORDENACAO_CANDIDATURA
     )
 
@@ -86,9 +65,8 @@ def obter_candidatura(
     request: HttpRequest,  # noqa: ARG001
     candidatura_id: int,
 ) -> Candidatura:
-    return get_object_or_404(
-        Candidatura.objects.select_related("plataforma"),
-        pk=candidatura_id,
+    return obter_ou_404(
+        Candidatura, candidatura_id, select_related=("plataforma",)
     )
 
 
@@ -97,7 +75,7 @@ def criar_candidatura(
     request: HttpRequest,  # noqa: ARG001
     payload: CandidaturaCreateSchema,
 ) -> Candidatura:
-    plataforma = get_object_or_404(Plataforma, pk=payload.plataforma_id)
+    plataforma = obter_ou_404(Plataforma, payload.plataforma_id)
     return Candidatura.objects.create(
         nome=payload.nome,
         empresa=payload.empresa,
@@ -114,8 +92,8 @@ def atualizar_candidatura(
     candidatura_id: int,
     payload: CandidaturaUpdateSchema,
 ) -> Candidatura:
-    candidatura = get_object_or_404(Candidatura, pk=candidatura_id)
-    plataforma = get_object_or_404(Plataforma, pk=payload.plataforma_id)
+    candidatura = obter_ou_404(Candidatura, candidatura_id)
+    plataforma = obter_ou_404(Plataforma, payload.plataforma_id)
 
     candidatura.nome = payload.nome
     candidatura.empresa = payload.empresa
@@ -132,6 +110,6 @@ def excluir_candidatura(
     request: HttpRequest,  # noqa: ARG001
     candidatura_id: int,
 ) -> HttpResponse:
-    candidatura = get_object_or_404(Candidatura, pk=candidatura_id)
+    candidatura = obter_ou_404(Candidatura, candidatura_id)
     candidatura.delete()
     return HttpResponse(status=204)
