@@ -1,0 +1,66 @@
+<mat-sidenav-container class="shell">
+    <mat-sidenav 
+    class="shell__nav"
+    mode="over"
+    position="start"
+    #sidenav
+    >
+
+        <mat-nav-list>
+            @for (item of itensMenu; track item.rota) {
+                <a 
+                    mat-list-item
+                    [routerLink]="item.rota"
+                    routerLinkActive="active-link"
+                    [routerLinkActiveOptions]="{ exact: item.rota == '/' }"
+                >
+                    <mat-icon matListItemIcon>{{ item.icone }}</mat-icon>
+                    <span matListItemTitle >{{ item.rotulo }}</span>
+                </a>
+            @if (isAdmin()) {
+                <a mat-list-item href="/admin/" target="_blank" >
+                    <mat-icon matListItemIcon >admin_panel_settings</mat-icon>
+                    <span matListItemTitle >Administração</span>
+                </a>
+            }
+            }
+        </mat-nav-list>
+    </mat-sidenav>
+
+    <mat-sidenav-content>
+        <mat-toolbar color="primary" class="shell__toolbar">
+            <button 
+                mat-icon-button
+                class="shell__menu-toggle"
+                (click)="sidenav.toggle()"
+                aria-label="Abrir menu lateral"
+            >
+                <mat-icon>menu</mat-icon>
+            </button>
+            <img src="favicon.ico" alt="Logo" class="shell_logo">
+            <span class="shell_brand">JobApplications</span>
+            <span class="shell__spacer"></span>
+            <button 
+                mat-button
+                class="shell__usuario"
+                [matMenuTriggerFor]="menuUsuario"
+                aria-label="Menu do usuário"
+            >
+                <mat-icon>account_circle</mat-icon>
+                    Olá {{ nomeUsuario() }}
+                <mat-icon>arrow_drop_down</mat-icon>
+            </button>
+            <mat-menu #menuUsuario="matMenu" >
+                <button mat-menu-item (click)="sair()" >
+                    <mat-icon>logout</mat-icon>
+                    <span>Sair</span>
+                </button>
+            </mat-menu>
+        </mat-toolbar>
+
+        <main class="shell_conteudo">
+            <router-outlet />
+        </main>
+
+    </mat-sidenav-content>
+</mat-sidenav-container>
