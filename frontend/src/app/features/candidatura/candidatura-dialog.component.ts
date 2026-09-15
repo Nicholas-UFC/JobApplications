@@ -7,9 +7,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { finalize } from 'rxjs';
 import {
     Candidatura,
+    CandidaturaCreate,
+    CandidaturaUpdate,
     STATUS_CANDIDATURA,
     StatusCandidatura,
 } from '../../core/models/candidatura.models';
@@ -17,6 +18,7 @@ import { Plataforma } from '../../core/models/plataforma.models';
 import { CandidaturaService } from '../../core/services/candidatura.service';
 import { PlataformaService } from '../../core/services/plataforma.service';
 import { NotificacaoService } from '../../shared/services/notificacao.service';
+import { OrquestradorSalvar } from '../../shared/dialogo-salvar/dialogo-salvar';
 
 export interface CandidaturaDialogDados {
     candidatura?: Candidatura;
@@ -47,7 +49,26 @@ export class CandidaturaDialogComponent implements OnInit {
         optional: true,
     });
 
-    protected readonly modoEdicao = this.dados?.candidatura != null;
+    protected readonly salvarEstado = new OrquestradorSalvar<CandidaturaCreate, CandidaturaUpdate>(
+        {
+            criar: (payload) => this.candidaturas.criar(payload),
+            atualizar: (id, payload) => this.candidaturas.atualizar(id, payload),
+            notificacao: this.notificacao,
+            dialogRef: this.dialogRef,
+            mensagemCriado: 'Candidatura salva.',
+            mensagemAtualizado: 'Candidatura atualizada.',
+        },
+        this.dados?.candidatura?.id,
+    );
+
+    protected get modoEdicao(): boolean {
+        return this.salvarEstado.modoEdicao;
+    }
+
+    protected get carregamento(): boolean {
+        return this.salvarEstado.carregamento;
+    }
+
     protected readonly opcoesStatus = STATUS_CANDIDATURA;
     protected plataformasLista: Plataforma[] = [];
 
@@ -64,8 +85,6 @@ export class CandidaturaDialogComponent implements OnInit {
         observacoes: new FormControl(this.dados?.candidatura?.observacoes ?? ''),
     });
 
-    protected carregamento = false;
-
     ngOnInit(): void {
         this.plataformas.listar({ page_size: 100 }).subscribe({
             next: (pagina) => (this.plataformasLista = pagina.items),
@@ -74,37 +93,27 @@ export class CandidaturaDialogComponent implements OnInit {
     }
 
     salvar(): void {
-        if (this.formulario.invalid || this.carregamento) {
-            return;
-        }
-        const valores = this.formulario.getRawValue();
-        const payload = {
-            nome: valores.nome ?? '',
-            empresa: valores.empresa ?? '',
-            plataforma_id: valores.plataforma_id ?? 0,
-            status: valores.status ?? ('ENVIADO' as StatusCandidatura),
-            observacoes: valores.observacoes ?? '',
-        };
-        this.carregamento = true;
-        const requisicao =
-            this.modoEdicao && this.dados?.candidatura
-                ? this.candidaturas.atualizar(this.dados.candidatura.id, {
-                      ...payload,
-                      ativo: this.dados.candidatura.ativo,
-                  })
-                : this.candidaturas.criar(payload);
-        requisicao.pipe(finalize(() => (this.carregamento = false))).subscribe({
-            next: () => {
-                this.notificacao.sucesso(
-                    this.modoEdicao ? 'Candidatura atualizada.' : 'Candidatura salva.',
-                );
-                this.dialogRef.close(true);
-            },
-            error: (erro) => this.notificacao.erro(erro),
-        });
+        this.salvarEstado.salvar(
+            this.formulario,
+            () => ({
+                nome: this.formulario.getRawValue().nome ?? '',
+                empresa: this.formulario.getRawValue().empresa ?? '',
+                plataforma_id: this.formulario.getRawValue().plataforma_id ?? 0,
+                status: this.formulario.getRawValue().status ?? ('ENVIADO' as StatusCandidatura),
+                observacoes: this.formulario.getRawValue().observacoes ?? '',
+            }),
+            () => ({
+                nome: this.formulario.getRawValue().nome ?? '',
+                empresa: this.formulario.getRawValue().empresa ?? '',
+                plataforma_id: this.formulario.getRawValue().plataforma_id ?? 0,
+                status: this.formulario.getRawValue().status ?? ('ENVIADO' as StatusCandidatura),
+                observacoes: this.formulario.getRawValue().observacoes ?? '',
+                ativo: this.dados?.candidatura?.ativo ?? true,
+            }),
+        );
     }
 
     fechar(): void {
-        this.dialogRef.close(false);
+        this.salvarEstado.fechar();
     }
 }
