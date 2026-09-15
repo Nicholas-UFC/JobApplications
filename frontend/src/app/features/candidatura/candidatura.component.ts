@@ -10,9 +10,9 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
-import { debounceTime, distinctUntilChanged, finalize } from 'rxjs';
 import {
     Candidatura,
+    CandidaturaFiltro,
     STATUS_CANDIDATURA,
     StatusCandidatura,
 } from '../../core/models/candidatura.models';
@@ -20,7 +20,7 @@ import { Plataforma } from '../../core/models/plataforma.models';
 import { CandidaturaService } from '../../core/services/candidatura.service';
 import { PlataformaService } from '../../core/services/plataforma.service';
 import { NotificacaoService } from '../../shared/services/notificacao.service';
-import { ConfirmacaoExclusaoDialogComponent } from '../../shared/components/confirmacao-exclusao-dialog/confirmacao-exclusao-dialog.component';
+import { OrquestradorListagem } from '../../shared/listagem/listagem';
 import { CandidaturaDialogComponent } from './candidatura-dialog.component';
 
 @Component({
@@ -49,80 +49,81 @@ export class CandidaturaComponent implements OnInit {
     private readonly dialog = inject(MatDialog);
 
     protected readonly colunas = ['id', 'nome', 'empresa', 'plataforma', 'status', 'acoes'];
-    protected candidaturasLista: Candidatura[] = [];
     protected plataformasLista: Plataforma[] = [];
     protected plataformasNomes: Record<number, string> = {};
     protected readonly opcoesStatus = STATUS_CANDIDATURA;
-    protected total = 0;
-    protected pagina = 0;
-    protected tamanhoPagina = 10;
-    protected carregamento = false;
 
-    protected readonly busca = new FormControl('', { nonNullable: true });
     protected readonly filtroStatus = new FormControl<StatusCandidatura | ''>('', {
         nonNullable: true,
     });
     protected readonly filtroPlataforma = new FormControl<number | ''>('', { nonNullable: true });
 
+    protected readonly listagem = new OrquestradorListagem<Candidatura, CandidaturaFiltro>({
+        listar: (filtro) => this.candidaturas.listar(filtro),
+        excluir: (id) => this.candidaturas.excluir(id),
+        notificacao: this.notificacao,
+        dialog: this.dialog,
+        mensagemExcluido: 'Candidatura excluída.',
+        tituloExclusao: 'Excluir Candidatura',
+        extrairId: (candidatura) => candidatura.id,
+        extrairNome: (candidatura) => candidatura.nome,
+        montarFiltro: () => ({
+            status: this.filtroStatus.value || undefined,
+            plataforma_id:
+                this.filtroPlataforma.value === '' ? undefined : this.filtroPlataforma.value,
+        }),
+    });
+
+    protected get candidaturasLista(): Candidatura[] {
+        return this.listagem.itens;
+    }
+
+    protected get total(): number {
+        return this.listagem.total;
+    }
+
+    protected get pagina(): number {
+        return this.listagem.pagina;
+    }
+
+    protected get tamanhoPagina(): number {
+        return this.listagem.tamanhoPagina;
+    }
+
+    protected get carregamento(): boolean {
+        return this.listagem.carregamento;
+    }
+
+    protected get busca() {
+        return this.listagem.busca;
+    }
+
     ngOnInit(): void {
-        this.busca.valueChanges.pipe(debounceTime(300), distinctUntilChanged()).subscribe(() => {
-            this.pagina = 0;
-            this.carregar();
-        });
-        this.filtroStatus.valueChanges.subscribe(() => {
-            this.pagina = 0;
-            this.carregar();
-        });
-        this.filtroPlataforma.valueChanges.subscribe(() => {
-            this.pagina = 0;
-            this.carregar();
-        });
+        this.filtroStatus.valueChanges.subscribe(() => this.listagem.recarregarDoInicio());
+        this.filtroPlataforma.valueChanges.subscribe(() => this.listagem.recarregarDoInicio());
         this.carregarPlataformas();
-        this.carregar();
+        this.listagem.iniciar();
     }
 
     carregar(): void {
-        if (this.carregamento) {
-            return;
-        }
-        this.carregamento = true;
-        const busca = this.busca.value.trim();
-        const status = this.filtroStatus.value || undefined;
-        const plataformaId =
-            this.filtroPlataforma.value === '' ? undefined : this.filtroPlataforma.value;
-        this.candidaturas
-            .listar({
-                busca: busca || undefined,
-                status,
-                plataforma_id: plataformaId,
-                page: this.pagina + 1,
-                page_size: this.tamanhoPagina,
-            })
-            .pipe(finalize(() => (this.carregamento = false)))
-            .subscribe({
-                next: (pagina) => {
-                    this.candidaturasLista = pagina.items;
-                    this.total = pagina.count;
-                },
-                error: (erro) => this.notificacao.erro(erro),
-            });
+        this.listagem.carregar();
     }
 
     paginar(evento: PageEvent): void {
-        this.pagina = evento.pageIndex;
-        this.tamanhoPagina = evento.pageSize;
-        this.carregar();
+        this.listagem.paginar(evento);
     }
 
     limparFiltros(): void {
-        this.busca.setValue('');
+        this.listagem.limparBusca();
         this.filtroStatus.setValue('');
         this.filtroPlataforma.setValue('');
     }
 
     temFiltroAtivo(): boolean {
         return (
-            !!this.busca.value || !!this.filtroStatus.value || this.filtroPlataforma.value !== ''
+            !!this.listagem.busca.value ||
+            !!this.filtroStatus.value ||
+            this.filtroPlataforma.value !== ''
         );
     }
 
@@ -135,42 +136,24 @@ export class CandidaturaComponent implements OnInit {
     }
 
     abrirDialog(): void {
-        this.dialog
-            .open(CandidaturaDialogComponent, { width: '480px' })
-            .afterClosed()
-            .subscribe((salvou: boolean | undefined) => {
-                if (salvou) {
-                    this.carregar();
-                }
-            });
+        this.listagem.acompanharDialogo(
+            this.dialog.open(CandidaturaDialogComponent, { width: '480px' }).afterClosed(),
+        );
     }
 
     abrirEdicao(candidatura: Candidatura): void {
-        this.dialog
-            .open(CandidaturaDialogComponent, {
-                width: '480px',
-                data: { candidatura },
-            })
-            .afterClosed()
-            .subscribe((salvou: boolean | undefined) => {
-                if (salvou) {
-                    this.carregar();
-                }
-            });
+        this.listagem.acompanharDialogo(
+            this.dialog
+                .open(CandidaturaDialogComponent, {
+                    width: '480px',
+                    data: { candidatura },
+                })
+                .afterClosed(),
+        );
     }
 
     confirmarExclusao(candidatura: Candidatura): void {
-        this.dialog
-            .open(ConfirmacaoExclusaoDialogComponent, {
-                width: '400px',
-                data: { nome: candidatura.nome, titulo: 'Excluir Candidatura' },
-            })
-            .afterClosed()
-            .subscribe((confirmou: boolean | undefined) => {
-                if (confirmou) {
-                    this.excluir(candidatura);
-                }
-            });
+        this.listagem.confirmarExclusao(candidatura);
     }
 
     private carregarPlataformas(): void {
@@ -180,19 +163,6 @@ export class CandidaturaComponent implements OnInit {
                 this.plataformasNomes = Object.fromEntries(
                     pagina.items.map((plataforma) => [plataforma.id, plataforma.nome]),
                 );
-            },
-            error: (erro) => this.notificacao.erro(erro),
-        });
-    }
-
-    private excluir(candidatura: Candidatura): void {
-        this.candidaturas.excluir(candidatura.id).subscribe({
-            next: () => {
-                this.notificacao.sucesso('Candidatura excluída.');
-                if (this.candidaturasLista.length === 1 && this.pagina > 0) {
-                    this.pagina--;
-                }
-                this.carregar();
             },
             error: (erro) => this.notificacao.erro(erro),
         });

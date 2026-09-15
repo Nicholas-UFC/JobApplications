@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -9,12 +9,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
-import { debounceTime, distinctUntilChanged, finalize } from 'rxjs';
-import { Plataforma } from '../../core/models/plataforma.models';
+import { Plataforma, PlataformaFiltro } from '../../core/models/plataforma.models';
 import { PlataformaService } from '../../core/services/plataforma.service';
 import { NotificacaoService } from '../../shared/services/notificacao.service';
+import { OrquestradorListagem } from '../../shared/listagem/listagem';
 import { PlataformaDialogComponent } from './plataforma-dialog.component';
-import { ConfirmacaoExclusaoDialogComponent } from '../../shared/components/confirmacao-exclusao-dialog/confirmacao-exclusao-dialog.component';
 
 @Component({
     selector: 'app-plataforma',
@@ -40,103 +39,76 @@ export class PlataformaComponent implements OnInit {
     private readonly dialog = inject(MatDialog);
 
     protected readonly colunas = ['id', 'nome', 'site_url', 'acoes'];
-    protected plataformasLista: Plataforma[] = [];
-    protected total = 0;
-    protected pagina = 0;
-    protected tamanhoPagina = 10;
-    protected carregamento = false;
+    protected readonly listagem = new OrquestradorListagem<Plataforma, PlataformaFiltro>({
+        listar: (filtro) => this.plataformas.listar(filtro),
+        excluir: (id) => this.plataformas.excluir(id),
+        notificacao: this.notificacao,
+        dialog: this.dialog,
+        mensagemExcluido: 'Plataforma excluída.',
+        tituloExclusao: 'Excluir Plataforma',
+        extrairId: (plataforma) => plataforma.id,
+        extrairNome: (plataforma) => plataforma.nome,
+        montarFiltro: () => ({}),
+    });
 
-    protected readonly busca = new FormControl('', { nonNullable: true });
+    protected get plataformasLista(): Plataforma[] {
+        return this.listagem.itens;
+    }
+
+    protected get total(): number {
+        return this.listagem.total;
+    }
+
+    protected get pagina(): number {
+        return this.listagem.pagina;
+    }
+
+    protected get tamanhoPagina(): number {
+        return this.listagem.tamanhoPagina;
+    }
+
+    protected get carregamento(): boolean {
+        return this.listagem.carregamento;
+    }
+
+    protected get busca() {
+        return this.listagem.busca;
+    }
 
     ngOnInit(): void {
-        this.busca.valueChanges.pipe(debounceTime(300), distinctUntilChanged()).subscribe(() => {
-            this.pagina = 0;
-            this.carregar();
-        });
-        this.carregar();
+        this.listagem.iniciar();
     }
 
     carregar(): void {
-        if (this.carregamento) {
-            return;
-        }
-        this.carregamento = true;
-        const busca = this.busca.value.trim();
-        this.plataformas
-            .listar({
-                busca: busca || undefined,
-                page: this.pagina + 1,
-                page_size: this.tamanhoPagina,
-            })
-            .pipe(finalize(() => (this.carregamento = false)))
-            .subscribe({
-                next: (pagina) => {
-                    this.plataformasLista = pagina.items;
-                    this.total = pagina.count;
-                },
-                error: (erro) => this.notificacao.erro(erro),
-            });
+        this.listagem.carregar();
     }
 
     paginar(evento: PageEvent): void {
-        this.pagina = evento.pageIndex;
-        this.tamanhoPagina = evento.pageSize;
-        this.carregar();
+        this.listagem.paginar(evento);
     }
 
     limparBusca(): void {
-        this.busca.setValue('');
+        this.listagem.limparBusca();
     }
 
     abrirDialog(): void {
-        this.dialog
-            .open(PlataformaDialogComponent, { width: '480px' })
-            .afterClosed()
-            .subscribe((salvou: boolean | undefined) => {
-                if (salvou) {
-                    this.carregar();
-                }
-            });
+        this.listagem.acompanharDialogo(
+            this.dialog.open(PlataformaDialogComponent, { width: '480px' }).afterClosed(),
+        );
     }
 
     abrirEdicao(plataforma: Plataforma): void {
-        this.dialog
-            .open(PlataformaDialogComponent, {
-                width: '480px',
-                data: { plataforma },
-            })
-            .afterClosed()
-            .subscribe((salvou: boolean | undefined) => {
-                if (salvou) {
-                    this.carregar();
-                }
-            });
+        this.listagem.acompanharDialogo(
+            this.dialog
+                .open(PlataformaDialogComponent, {
+                    width: '480px',
+                    data: { plataforma },
+                })
+                .afterClosed(),
+        );
     }
 
     confirmarExclusao(plataforma: Plataforma): void {
-        this.dialog
-            .open(ConfirmacaoExclusaoDialogComponent, {
-                width: '400px',
-                data: { nome: plataforma.nome, titulo: 'Excluir Plataforma' },
-            })
-            .afterClosed()
-            .subscribe((confirmou: boolean | undefined) => {
-                if (confirmou) {
-                    this.excluir(plataforma);
-                }
-            });
-    }
-
-    private excluir(plataforma: Plataforma): void {
-        this.plataformas.excluir(plataforma.id).subscribe({
-            next: () => {
-                this.notificacao.sucesso('Plataforma excluída.');
-                if (this.plataformasLista.length === 1 && this.pagina > 0) {
-                    this.pagina--;
-                }
-                this.carregar();
-            },
-            error: (erro) => this.notificacao.erro(erro),
-        });
+        this.listagem.confirmarExclusao(plataforma);
     }
 }
