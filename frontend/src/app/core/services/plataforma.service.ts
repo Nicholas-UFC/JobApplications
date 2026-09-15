@@ -2,12 +2,12 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
-    Pagina,
     Plataforma,
     PlataformaCreate,
     PlataformaFiltro,
     PlataformaUpdate,
 } from '../models/plataforma.models';
+import { Pagina } from '../../shared/models/pagina.models';
 
 @Injectable({ providedIn: 'root' })
 export class PlataformaService {

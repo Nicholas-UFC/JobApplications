@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
-import { ConfirmacaoExclusaoDialogComponent } from './confirmacao-exclusao-dialog.component';
+import { ConfirmacaoExclusaoDialogComponent } from '../../shared/components/confirmacao-exclusao-dialog/confirmacao-exclusao-dialog.component';
 import { PlataformaDialogComponent } from './plataforma-dialog.component';
 import { PlataformaComponent } from './plataforma.component';
 import { PlataformaService } from '../../core/services/plataforma.service';
@@ -87,7 +87,7 @@ describe('PlataformaComponent', () => {
         component['confirmarExclusao'](PAGINA.items[0]);
         expect(MatDialog.prototype.open).toHaveBeenCalledWith(ConfirmacaoExclusaoDialogComponent, {
             width: '400px',
-            data: { nome: 'LinkedIn' },
+            data: { nome: 'LinkedIn', titulo: 'Excluir Plataforma' },
         });
     });
 

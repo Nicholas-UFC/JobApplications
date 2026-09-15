@@ -16,12 +16,6 @@ export interface PlataformaUpdate {
     ativo: boolean;
 }
 
-/** Envelope da paginação do django-ninja (`PageNumberPagination`). */
-export interface Pagina<T> {
-    items: T[];
-    count: number;
-}
-
 export interface PlataformaFiltro {
     busca?: string;
     page?: number;

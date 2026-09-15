@@ -7,7 +7,7 @@ import {
     CandidaturaFiltro,
     CandidaturaUpdate,
 } from '../models/candidatura.models';
-import { Pagina } from '../models/plataforma.models';
+import { Pagina } from '../../shared/models/pagina.models';
 
 @Injectable({ providedIn: 'root' })
 export class CandidaturaService {

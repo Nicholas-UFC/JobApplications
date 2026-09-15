@@ -14,7 +14,7 @@ import { Plataforma } from '../../core/models/plataforma.models';
 import { PlataformaService } from '../../core/services/plataforma.service';
 import { NotificacaoService } from '../../shared/services/notificacao.service';
 import { PlataformaDialogComponent } from './plataforma-dialog.component';
-import { ConfirmacaoExclusaoDialogComponent } from './confirmacao-exclusao-dialog.component';
+import { ConfirmacaoExclusaoDialogComponent } from '../../shared/components/confirmacao-exclusao-dialog/confirmacao-exclusao-dialog.component';
 
 @Component({
     selector: 'app-plataforma',
@@ -117,7 +117,7 @@ export class PlataformaComponent implements OnInit {
         this.dialog
             .open(ConfirmacaoExclusaoDialogComponent, {
                 width: '400px',
-                data: { nome: plataforma.nome },
+                data: { nome: plataforma.nome, titulo: 'Excluir Plataforma' },
             })
             .afterClosed()
             .subscribe((confirmou: boolean | undefined) => {

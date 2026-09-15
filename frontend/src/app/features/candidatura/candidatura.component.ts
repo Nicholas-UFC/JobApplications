@@ -20,7 +20,7 @@ import { Plataforma } from '../../core/models/plataforma.models';
 import { CandidaturaService } from '../../core/services/candidatura.service';
 import { PlataformaService } from '../../core/services/plataforma.service';
 import { NotificacaoService } from '../../shared/services/notificacao.service';
-import { ConfirmacaoExclusaoDialogComponent } from '../plataforma/confirmacao-exclusao-dialog.component';
+import { ConfirmacaoExclusaoDialogComponent } from '../../shared/components/confirmacao-exclusao-dialog/confirmacao-exclusao-dialog.component';
 import { CandidaturaDialogComponent } from './candidatura-dialog.component';
 
 @Component({
