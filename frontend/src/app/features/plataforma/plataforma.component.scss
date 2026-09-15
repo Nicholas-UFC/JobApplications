@@ -1,0 +1,42 @@
+.plataforma {
+    display: flex;
+    justify-content: center;
+    padding: 24px;
+
+    &__card {
+        width: 100%;
+        max-width: 960px;
+        padding: 16px;
+    }
+
+    &__barra {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    &__busca {
+        flex: 1;
+    }
+
+    &__tabela {
+        width: 100%;
+    }
+
+    &__acoes {
+        text-align: end;
+    }
+
+    &__carregamento {
+        display: flex;
+        justify-content: center;
+        padding: 32px;
+    }
+
+    &__vazio {
+        text-align: center;
+        padding: 32px;
+        color: var(--mat-sys-on-surface-variant);
+    }
+}

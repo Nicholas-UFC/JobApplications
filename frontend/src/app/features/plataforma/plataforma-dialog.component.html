@@ -1,0 +1,44 @@
+<h2 mat-dialog-title>{{ modoEdicao ? 'Editar Plataforma' : 'Adicionar Plataforma' }}</h2>
+
+<mat-dialog-content class="plataforma-dialog__conteudo">
+    <form [formGroup]="formulario" (ngSubmit)="salvar()" id="form-plataforma">
+        <mat-form-field class="plataforma-dialog__campo" appearance="outline">
+            <mat-label>Nome</mat-label>
+            <mat-icon matPrefix>public</mat-icon>
+            <input matInput formControlName="nome" autocomplete="off" required />
+            @if (formulario.controls.nome.hasError('required')) {
+                <mat-error>Informe o nome.</mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field class="plataforma-dialog__campo" appearance="outline">
+            <mat-label>Site</mat-label>
+            <mat-icon matPrefix>link</mat-icon>
+            <input
+                matInput
+                formControlName="site_url"
+                type="url"
+                autocomplete="url"
+                placeholder="https://"
+            />
+        </mat-form-field>
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="fechar()" [disabled]="carregamento">Cancelar</button>
+    <button
+        mat-flat-button
+        color="primary"
+        type="submit"
+        form="form-plataforma"
+        [disabled]="formulario.invalid || carregamento"
+    >
+        @if (carregamento) {
+            <mat-spinner diameter="20" class="plataforma-dialog__spinner" />
+        } @else {
+            <mat-icon>save</mat-icon>
+        }
+        Salvar
+    </button>
+</mat-dialog-actions>

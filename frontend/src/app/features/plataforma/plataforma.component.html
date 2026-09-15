@@ -1,0 +1,102 @@
+<div class="plataforma">
+    <mat-card class="plataforma__card">
+        <mat-card-header class="plataforma__cabecalho">
+            <mat-card-title>Plataformas</mat-card-title>
+            <mat-card-subtitle>Canais onde as candidaturas são registradas</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+            <div class="plataforma__barra">
+                <mat-form-field class="plataforma__busca" appearance="outline">
+                    <mat-label>Pesquisar</mat-label>
+                    <mat-icon matPrefix>search</mat-icon>
+                    <input matInput [formControl]="busca" placeholder="Nome da Plataforma" />
+                    @if (busca.value) {
+                        <button
+                            mat-icon-button
+                            matSuffix
+                            type="button"
+                            aria-label="Limpar pesquisa"
+                            (click)="limparBusca()"
+                        >
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    }
+                </mat-form-field>
+
+                <button mat-flat-button color="primary" type="button" (click)="abrirDialog()">
+                    <mat-icon>add</mat-icon>
+                    Adicionar
+                </button>
+            </div>
+
+            @if (carregamento) {
+                <div class="plataforma__carregamento">
+                    <mat-spinner diameter="40" />
+                </div>
+            } @else if (plataformasLista.length === 0) {
+                <p class="plataforma__vazio">Nenhuma Plataforma encontrada.</p>
+            } @else {
+                <table mat-table [dataSource]="plataformasLista" class="plataforma__tabela">
+                    <ng-container matColumnDef="id">
+                        <th mat-header-cell *matHeaderCellDef>ID</th>
+                        <td mat-cell *matCellDef="let plataforma">{{ plataforma.id }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="nome">
+                        <th mat-header-cell *matHeaderCellDef>Nome</th>
+                        <td mat-cell *matCellDef="let plataforma">{{ plataforma.nome }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="site_url">
+                        <th mat-header-cell *matHeaderCellDef>URL</th>
+                        <td mat-cell *matCellDef="let plataforma">
+                            @if (plataforma.site_url) {
+                                <a [href]="plataforma.site_url" target="_blank" rel="noopener">{{
+                                    plataforma.site_url
+                                }}</a>
+                            } @else {
+                                —
+                            }
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="acoes">
+                        <th mat-header-cell *matHeaderCellDef class="plataforma__acoes">Ações</th>
+                        <td mat-cell *matCellDef="let plataforma" class="plataforma__acoes">
+                            <button
+                                mat-icon-button
+                                color="primary"
+                                type="button"
+                                [attr.aria-label]="'Editar ' + plataforma.nome"
+                                (click)="abrirEdicao(plataforma)"
+                            >
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                            <button
+                                mat-icon-button
+                                color="warn"
+                                type="button"
+                                [attr.aria-label]="'Excluir ' + plataforma.nome"
+                                (click)="confirmarExclusao(plataforma)"
+                            >
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="colunas"></tr>
+                    <tr mat-row *matRowDef="let linha; columns: colunas"></tr>
+                </table>
+
+                <mat-paginator
+                    [length]="total"
+                    [pageIndex]="pagina"
+                    [pageSize]="tamanhoPagina"
+                    [pageSizeOptions]="[5, 10, 25]"
+                    (page)="paginar($event)"
+                />
+            }
+        </mat-card-content>
+    </mat-card>
+</div>
