@@ -36,6 +36,7 @@ export class ShellComponent implements OnInit {
     protected readonly itensMenu = [
         { rota: '/', icone: 'home', rotulo: 'Home' },
         { rota: '/plataforma', icone: 'public', rotulo: 'Plataforma' },
+        { rota: '/candidatura', icone: 'work', rotulo: 'Candidatura' },
     ];
 
     sair(): void {

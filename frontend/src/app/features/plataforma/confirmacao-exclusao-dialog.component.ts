@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 
 export interface ConfirmacaoExclusaoDados {
     nome: string;
+    titulo?: string;
 }
 
 @Component({

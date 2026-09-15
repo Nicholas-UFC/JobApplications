@@ -24,6 +24,13 @@ export const routes: Routes = [
                         (m) => m.PlataformaComponent,
                     ),
             },
+            {
+                path: 'candidatura',
+                loadComponent: () =>
+                    import('./features/candidatura/candidatura.component').then(
+                        (m) => m.CandidaturaComponent,
+                    ),
+            },
         ],
     },
     {

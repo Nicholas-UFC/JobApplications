@@ -1,0 +1,19 @@
+.candidatura-dialog {
+    &__conteudo {
+        padding-top: 12px;
+        overflow: visible;
+    }
+
+    &__campo {
+        display: block;
+        width: 100%;
+        max-width: 380px;
+        margin: 0 auto 8px;
+    }
+
+    &__spinner {
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 8px;
+    }
+}

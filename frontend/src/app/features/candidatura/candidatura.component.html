@@ -1,0 +1,136 @@
+<div class="candidatura">
+    <mat-card class="candidatura__card">
+        <mat-card-header class="candidatura__cabecalho">
+            <mat-card-title>Candidaturas</mat-card-title>
+            <mat-card-subtitle>Vagas às quais você se candidatou</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+            <div class="candidatura__barra">
+                <mat-form-field class="candidatura__busca" appearance="outline">
+                    <mat-label>Pesquisar</mat-label>
+                    <mat-icon matPrefix>search</mat-icon>
+                    <input
+                        matInput
+                        [formControl]="busca"
+                        placeholder="Nome, empresa ou Plataforma"
+                    />
+                    @if (busca.value) {
+                        <button
+                            mat-icon-button
+                            matSuffix
+                            type="button"
+                            aria-label="Limpar pesquisa"
+                            (click)="busca.setValue('')"
+                        >
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    }
+                </mat-form-field>
+
+                <mat-form-field class="candidatura__filtro" appearance="outline">
+                    <mat-label>Status</mat-label>
+                    <mat-select [formControl]="filtroStatus">
+                        <mat-option value="">Todos</mat-option>
+                        @for (opcao of opcoesStatus; track opcao.valor) {
+                            <mat-option [value]="opcao.valor">{{ opcao.rotulo }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field class="candidatura__filtro" appearance="outline">
+                    <mat-label>Plataforma</mat-label>
+                    <mat-select [formControl]="filtroPlataforma">
+                        <mat-option value="">Todas</mat-option>
+                        @for (plataforma of plataformasLista; track plataforma.id) {
+                            <mat-option [value]="plataforma.id">{{ plataforma.nome }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+
+                @if (temFiltroAtivo()) {
+                    <button mat-button type="button" (click)="limparFiltros()">Limpar</button>
+                }
+
+                <button mat-flat-button color="primary" type="button" (click)="abrirDialog()">
+                    <mat-icon>add</mat-icon>
+                    Adicionar
+                </button>
+            </div>
+
+            @if (carregamento) {
+                <div class="candidatura__carregamento">
+                    <mat-spinner diameter="40" />
+                </div>
+            } @else if (candidaturasLista.length === 0) {
+                <p class="candidatura__vazio">Nenhuma Candidatura encontrada.</p>
+            } @else {
+                <table mat-table [dataSource]="candidaturasLista" class="candidatura__tabela">
+                    <ng-container matColumnDef="id">
+                        <th mat-header-cell *matHeaderCellDef>ID</th>
+                        <td mat-cell *matCellDef="let candidatura">{{ candidatura.id }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="nome">
+                        <th mat-header-cell *matHeaderCellDef>Nome</th>
+                        <td mat-cell *matCellDef="let candidatura">{{ candidatura.nome }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="empresa">
+                        <th mat-header-cell *matHeaderCellDef>Empresa</th>
+                        <td mat-cell *matCellDef="let candidatura">{{ candidatura.empresa }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="plataforma">
+                        <th mat-header-cell *matHeaderCellDef>Plataforma</th>
+                        <td mat-cell *matCellDef="let candidatura">
+                            {{ nomePlataforma(candidatura.plataforma_id) }}
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="status">
+                        <th mat-header-cell *matHeaderCellDef>Status</th>
+                        <td mat-cell *matCellDef="let candidatura">
+                            {{ rotuloStatus(candidatura.status) }}
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="acoes">
+                        <th mat-header-cell *matHeaderCellDef class="candidatura__acoes">Ações</th>
+                        <td mat-cell *matCellDef="let candidatura" class="candidatura__acoes">
+                            <button
+                                mat-icon-button
+                                color="primary"
+                                type="button"
+                                [attr.aria-label]="'Editar ' + candidatura.nome"
+                                (click)="abrirEdicao(candidatura)"
+                            >
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                            <button
+                                mat-icon-button
+                                color="warn"
+                                type="button"
+                                [attr.aria-label]="'Excluir ' + candidatura.nome"
+                                (click)="confirmarExclusao(candidatura)"
+                            >
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="colunas"></tr>
+                    <tr mat-row *matRowDef="let linha; columns: colunas"></tr>
+                </table>
+
+                <mat-paginator
+                    [length]="total"
+                    [pageIndex]="pagina"
+                    [pageSize]="tamanhoPagina"
+                    [pageSizeOptions]="[5, 10, 25]"
+                    (page)="paginar($event)"
+                />
+            }
+        </mat-card-content>
+    </mat-card>
+</div>
