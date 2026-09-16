@@ -10,27 +10,26 @@ from plataforma.schemas import (
 )
 from utils.crud import (
     excluir_ou_409,
-    filtrar_ativo,
-    filtrar_busca,
     garantir_nome_unico,
     obter_ou_404,
 )
+from utils.listagem import EspecListagem, listar
 from utils.mensagens import (
     PLATAFORMA_EM_USO,
     PLATAFORMA_NOME_DUPLICADO,
 )
-from utils.ordenacao import aplicar_ordenacao
 
 router_plataforma = Router()
 
-_CAMPOS_ORDENACAO_PLATAFORMA = {
-    "id": "id",
-    "nome": "nome",
-    "site_url": "site_url",
-    "ativo": "ativo",
-}
-
-_CAMPOS_BUSCA_PLATAFORMA = ("nome",)
+_ESPEC_LISTAGEM_PLATAFORMA = EspecListagem(
+    campos_busca=("nome",),
+    campos_ordenacao={
+        "id": "id",
+        "nome": "nome",
+        "site_url": "site_url",
+        "ativo": "ativo",
+    },
+)
 
 
 @router_plataforma.get("/", response=list[PlataformaSchema])
@@ -42,13 +41,12 @@ def listar_plataforma(
     ordenacao: str | None = None,
     **kwargs: object,  # noqa: ARG001
 ) -> list[Plataforma]:
-    plataformas = filtrar_busca(
-        filtrar_ativo(Plataforma.objects.all(), ativo),
-        busca,
-        _CAMPOS_BUSCA_PLATAFORMA,
-    )
-    return aplicar_ordenacao(
-        plataformas, ordenacao, _CAMPOS_ORDENACAO_PLATAFORMA
+    return listar(
+        Plataforma.objects.all(),
+        _ESPEC_LISTAGEM_PLATAFORMA,
+        ativo=ativo,
+        busca=busca,
+        ordenacao=ordenacao,
     )
 
 

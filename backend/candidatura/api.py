@@ -1,3 +1,5 @@
+from dataclasses import replace
+
 from django.http import HttpRequest, HttpResponse
 from ninja import Router
 from ninja.pagination import PageNumberPagination, paginate
@@ -9,28 +11,29 @@ from candidatura.schemas import (
     CandidaturaUpdateSchema,
 )
 from plataforma.models import Plataforma
-from utils.crud import filtrar_ativo, filtrar_busca, obter_ou_404
-from utils.ordenacao import aplicar_ordenacao
+from utils.crud import obter_ou_404
+from utils.listagem import EspecListagem, listar
 
 router_candidatura = Router()
 
-_CAMPO_ORDENACAO_CANDIDATURA = {
-    "id": "id",
-    "nome": "nome",
-    "empresa": "empresa",
-    "observacoes": "observacoes",
-    "status": "status",
-    "ativo": "ativo",
-    "created_at": "created_at",
-    "updated_at": "updated_at",
-    "plataforma": "plataforma__nome",
-}
-
-_CAMPOS_BUSCA_CANDIDATURA = (
-    "nome",
-    "empresa",
-    "observacoes",
-    "plataforma__nome",
+_ESPEC_LISTAGEM_CANDIDATURA = EspecListagem(
+    campos_busca=(
+        "nome",
+        "empresa",
+        "observacoes",
+        "plataforma__nome",
+    ),
+    campos_ordenacao={
+        "id": "id",
+        "nome": "nome",
+        "empresa": "empresa",
+        "observacoes": "observacoes",
+        "status": "status",
+        "ativo": "ativo",
+        "created_at": "created_at",
+        "updated_at": "updated_at",
+        "plataforma": "plataforma__nome",
+    },
 )
 
 
@@ -45,18 +48,16 @@ def listar_candidaturas(  # noqa: PLR0913, PLR0917
     ordenacao: str | None = None,
     **kwargs: object,  # noqa: ARG001
 ) -> list[Candidatura]:
-    candidaturas = filtrar_ativo(
-        Candidatura.objects.select_related("plataforma"), ativo
+    espec = replace(
+        _ESPEC_LISTAGEM_CANDIDATURA,
+        filtros_extras={"status": status, "plataforma_id": plataforma_id},
     )
-    if status:
-        candidaturas = candidaturas.filter(status=status)
-    if plataforma_id is not None:
-        candidaturas = candidaturas.filter(plataforma_id=plataforma_id)
-    candidaturas = filtrar_busca(
-        candidaturas, busca, _CAMPOS_BUSCA_CANDIDATURA
-    )
-    return aplicar_ordenacao(
-        candidaturas, ordenacao, _CAMPO_ORDENACAO_CANDIDATURA
+    return listar(
+        Candidatura.objects.select_related("plataforma"),
+        espec,
+        ativo=ativo,
+        busca=busca,
+        ordenacao=ordenacao,
     )
 
 
