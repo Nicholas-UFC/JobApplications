@@ -1,59 +1,73 @@
+<!-- prettier-ignore -->
+<div align="center">
+
+<img src="./public/favicon.ico" alt="" align="center" height="64" />
+
 # Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.1.3.
+*Interface Angular do JobApplications, com autenticação e gestão de Candidaturas e Plataformas.*
 
-## Development server
+[Visão geral](#visão-geral) • [Rotas](#rotas) • [Início rápido](#início-rápido) • [Estrutura](#estrutura) • [Comandos](#comandos)
 
-To start a local development server, run:
+</div>
 
-```bash
-ng serve
+## Visão geral
+
+Aplicação Angular 22 com Angular Material e SSR. O dev server usa `proxy.conf.js` para encaminhar `/api`, `/admin` e `/static` ao backend em `http://localhost:8000`, então o frontend em `http://localhost:4200` fala com a API sem CORS em desenvolvimento.
+
+## Rotas
+
+| Rota           | Tela                              | Acesso     |
+| -------------- | --------------------------------- | ---------- |
+| `/login`       | Login                             | Pública    |
+| `/`            | Home                              | Autenticado |
+| `/plataforma`  | Lista, cria, edita e exclui Plataformas | Autenticado |
+| `/candidatura` | Lista, cria, edita e exclui Candidaturas | Autenticado |
+
+As rotas autenticadas passam pelo `authGuard` dentro do `ShellComponent`. O menu lateral inclui link para o `/admin/` do Django quando o usuário é admin.
+
+## Início rápido
+
+### Pré-requisitos
+
+- [Node.js](https://nodejs.org/) e npm (o projeto usa npm 11)
+- Backend rodando em `http://localhost:8000` (ver `backend/README.md`)
+
+Execute os comandos a partir de `frontend/`:
+
+```powershell
+cd frontend
+npm ci
+npm start
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Abra [http://localhost:4200](http://localhost:4200).
 
-## Code scaffolding
+> [!TIP]
+> Para apontar para outro backend, defina `BACKEND_URL` antes do `npm start`: o proxy usa `process.env.BACKEND_URL` com fallback para `http://localhost:8000`.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Estrutura
 
-```bash
-ng generate component component-name
+```text
+frontend/src/app/
+├── core/      # guards, interceptors, models e services (auth, token, plataforma, candidatura)
+├── features/  # telas: login, home, plataforma, candidatura
+├── layout/    # shell com menu lateral e toolbar
+└── shared/    # components, listagem, dialogo-salvar, models, services, utils
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Os módulos compartilhados concentram o comportamento repetido: `shared/listagem/` orquestra busca, paginação e exclusão das duas telas; `shared/dialogo-salvar/` orquestra o salvar dos dois diálogos; `shared/components/confirmacao-exclusao-dialog/` é a confirmação neutra usada por ambos.
 
-```bash
-ng generate --help
+> [!NOTE]
+> `AuthService` guarda os tokens em `localStorage` via helper SSR-safe: `localStorage` é indefinido no servidor. `NotificacaoService.erro()` depende do contrato de erro `{"detail": ...}` da API.
+
+## Comandos
+
+Execute em `frontend/`:
+
+```powershell
+npm start                  # dev server com proxy para o backend
+npm test                   # testes unitários (Vitest via @angular/build:unit-test)
+npm run build              # build de produção com SSR
+npx prettier --write .     # formatação (4 espaços, aspas simples, printWidth 100)
 ```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

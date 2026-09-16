@@ -1,28 +1,35 @@
+<!-- prettier-ignore -->
+<div align="center">
+
+<img src="frontend/public/favicon.ico" alt="" align="center" height="64" />
+
 # JobApplications
 
-<p align="center">
-  <img src="frontend/public/favicon.ico" alt="JobApplications" width="64" height="64">
-</p>
+*Acompanhe candidaturas de emprego e as plataformas em que foram registradas.*
 
-<p align="center">Acompanhe candidaturas de emprego e as plataformas em que foram registradas.</p>
+[Visão geral](#visão-geral) • [Recursos](#recursos) • [Stack](#stack) • [Início rápido](#início-rápido) • [API](#api) • [Estrutura](#estrutura) • [Documentação](#documentação) • [Comandos](#comandos)
 
-JobApplications é uma aplicação full-stack para organizar a busca por emprego. O backend disponibiliza uma API REST documentada e protegida por JWT; o frontend oferece uma interface Angular com autenticação e acesso ao painel administrativo do Django.
+</div>
+
+## Visão geral
+
+Aplicação full-stack para organizar a busca por emprego. O backend expõe uma API REST documentada e protegida por JWT; o frontend oferece uma interface Angular com autenticação e acesso ao painel administrativo do Django. O banco é um SQLite local gerado pelas migrações.
 
 ## Recursos
 
-- Cadastro, consulta, edição, exclusão, busca, filtros e ordenação de plataformas e candidaturas.
-- Status de candidatura: enviado, rejeitado, entrevista, proposta recebida e aprovada.
-- Autenticação JWT, renovação de token e proteção de rotas no frontend.
-- Paginação na API, histórico de alterações e painel administrativo com Jazzmin.
-- Health check público para a aplicação e o banco de dados.
+- **Plataformas e Candidaturas** — cadastro, consulta, edição, exclusão, busca textual, filtros, ordenação e paginação.
+- **Status de Candidatura** — enviado, rejeitado, entrevista, proposta recebida e aprovada.
+- **Autenticação JWT** — login, renovação de token com blacklist e proteção de rotas no frontend.
+- **Histórico e admin** — histórico de alterações (`simple_history`) e painel administrativo com Jazzmin.
+- **Health check público** — status da aplicação e do banco de dados.
 
 ## Stack
 
-| Camada | Tecnologias |
-| --- | --- |
-| Backend | Python 3.14+, Django 6.1, Django Ninja, JWT, SQLite |
-| Frontend | Angular 22, Angular Material, TypeScript, SCSS, SSR |
-| Qualidade | pytest, Ruff, Bandit e Vitest |
+| Camada    | Tecnologias                                              |
+| --------- | -------------------------------------------------------- |
+| Backend   | Python 3.14+, Django 6.1, Django Ninja, JWT, SQLite      |
+| Frontend  | Angular 22, Angular Material, TypeScript, SCSS, SSR      |
+| Qualidade | pytest, Ruff, Bandit, Vitest, Prettier                   |
 
 ## Início rápido
 
@@ -51,7 +58,6 @@ JobApplications é uma aplicação full-stack para organizar a busca por emprego
 3. Opcionalmente, crie um usuário para entrar no sistema e acessar o admin:
 
    ```powershell
-   cd backend
    uv run python manage.py createsuperuser
    ```
 
@@ -65,21 +71,21 @@ JobApplications é uma aplicação full-stack para organizar a busca por emprego
 
 Abra [http://localhost:4200](http://localhost:4200). O servidor de desenvolvimento encaminha `/api`, `/admin` e `/static` para o backend em `http://localhost:8000`.
 
-> [!NOTE]
-> O banco SQLite é criado em `database/db.sqlite3` pelas migrações e não é versionado. O arquivo `.env` deve permanecer na raiz do repositório.
+> [!IMPORTANT]
+> Clone novo exige `migrate` antes de rodar: o banco SQLite é criado em `database/db.sqlite3` e não é versionado. O arquivo `.env` deve permanecer na raiz do repositório.
 
 ## API
 
-A API está disponível em `http://localhost:8000/api/` e a documentação interativa do Django Ninja em `http://localhost:8000/api/docs`. Todas as rotas, exceto login e health check, exigem `Authorization: Bearer <access-token>`.
+Base em `http://localhost:8000/api/`, com documentação interativa do Django Ninja em `http://localhost:8000/api/docs`. Todas as rotas, exceto login e health check, exigem `Authorization: Bearer <access-token>`.
 
-| Recurso | Rotas principais |
-| --- | --- |
+| Recurso      | Rotas principais                                                                              |
+| ------------ | --------------------------------------------------------------------------------------------- |
 | Autenticação | `POST /api/auth/login`, `POST /api/auth/refresh`, `POST /api/auth/verify`, `GET /api/auth/me` |
-| Plataformas | `GET`, `POST /api/plataforma/`; `GET`, `PUT`, `DELETE /api/plataforma/{id}` |
-| Candidaturas | `GET`, `POST /api/candidatura/`; `GET`, `PUT`, `DELETE /api/candidatura/{id}` |
-| Saúde | `GET /api/health` |
+| Plataformas  | `GET`, `POST /api/plataforma/`; `GET`, `PUT`, `DELETE /api/plataforma/{id}`                    |
+| Candidaturas | `GET`, `POST /api/candidatura/`; `GET`, `PUT`, `DELETE /api/candidatura/{id}`                  |
+| Saúde        | `GET /api/health`                                                                             |
 
-As listagens aceitam paginação e podem receber filtros como `ativo`, `busca` e `ordenacao`. Candidaturas também aceitam `status` e `plataforma_id`.
+As listagens aceitam paginação (`page`, `page_size`) e filtros como `ativo`, `busca` e `ordenacao` (prefixo `-` inverte). Candidaturas também aceitam `status` e `plataforma_id`. Erros seguem o contrato `{"detail": "mensagem"}`.
 
 ## Estrutura
 
@@ -90,7 +96,18 @@ database/   # Banco SQLite local, gerado pelas migrações
 .agents/    # Instruções e skills para agentes
 ```
 
-## Comandos úteis
+## Documentação
+
+Cada área tem seu próprio README com setup detalhado, estrutura interna e comandos:
+
+- [backend/README.md](backend/README.md) — API, apps, `utils/` e qualidade.
+- [frontend/README.md](frontend/README.md) — rotas, `core/`/`features/`/`shared/` e proxy.
+- [database/README.md](database/README.md) — criação, reset, backup e solução de problemas.
+
+> [!TIP]
+> Comece pelo README da área que vai alterar; o README geral cobre apenas o fluxo ponta a ponta.
+
+## Comandos
 
 Execute os comandos do backend em `backend/`:
 
@@ -106,4 +123,5 @@ Execute os comandos do frontend em `frontend/`:
 ```powershell
 npm test
 npm run build
+npx prettier --write .
 ```
