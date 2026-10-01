@@ -22,6 +22,7 @@ repositório. Tudo aqui é versionado no Git.
 - `codebase-design` — vocabulário e disciplina de design de módulos.
 - `domain-modeling` — glossário do domínio (`CONTEXT.md`) e ADRs.
 - `grilling` — entrevista estruturada sobre decisões.
+- `frontend-design` — direção visual intencional para UI nova ou reformulada.
 - `improve-codebase-architecture` — varredura de oportunidades de deepening.
 
 Instalar mais: `npx skills add <repo> --skill <nome> --agent opencode -y`.
