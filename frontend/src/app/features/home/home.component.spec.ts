@@ -38,20 +38,20 @@ describe('Home', () => {
     });
 
     it('deve calcular largura proporcional ao total', () => {
-        component['totais'] = {
+        component['totais'].set({
             ENVIADO: 2,
             REJEITADO: 0,
             ENTREVISTA: 1,
             PROPOSTA: 1,
             APROVADA: 0,
-        };
-        component['total'] = 4;
+        });
+        component['total'].set(4);
         expect(component['largura']('ENVIADO')).toBe('50%');
         expect(component['largura']('REJEITADO')).toBe('0%');
     });
 
     it('deve zerar largura sem candidaturas', () => {
-        component['total'] = 0;
+        component['total'].set(0);
         expect(component['largura']('ENVIADO')).toBe('0%');
     });
 });

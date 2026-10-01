@@ -42,7 +42,7 @@
                     <mat-label>Plataforma</mat-label>
                     <mat-select [formControl]="filtroPlataforma">
                         <mat-option value="">Todas</mat-option>
-                        @for (plataforma of plataformasLista; track plataforma.id) {
+                        @for (plataforma of plataformasLista(); track plataforma.id) {
                             <mat-option [value]="plataforma.id">{{ plataforma.nome }}</mat-option>
                         }
                     </mat-select>

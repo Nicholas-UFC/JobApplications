@@ -1,4 +1,5 @@
 import { FormControl } from '@angular/forms';
+import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
 import { Observable, debounceTime, distinctUntilChanged, finalize } from 'rxjs';
@@ -32,11 +33,11 @@ export interface ConfigListagem<T, F> {
  * Composition: cada componente instancia o seu com a sua ConfigListagem.
  */
 export class OrquestradorListagem<T, F> {
-    itens: T[] = [];
-    total = 0;
-    pagina = 0;
-    tamanhoPagina = 10;
-    carregamento = false;
+    readonly itens = signal<T[]>([]);
+    readonly total = signal(0);
+    readonly pagina = signal(0);
+    readonly tamanhoPagina = signal(10);
+    readonly carregamento = signal(false);
 
     readonly busca = new FormControl('', { nonNullable: true });
 
@@ -44,7 +45,7 @@ export class OrquestradorListagem<T, F> {
 
     iniciar(): void {
         this.busca.valueChanges.pipe(debounceTime(300), distinctUntilChanged()).subscribe(() => {
-            this.pagina = 0;
+            this.pagina.set(0);
             this.carregar();
         });
         this.carregar();
@@ -52,36 +53,36 @@ export class OrquestradorListagem<T, F> {
 
     /** Chamado por filtros extras do adapter (ex. Status, Plataforma). */
     recarregarDoInicio(): void {
-        this.pagina = 0;
+        this.pagina.set(0);
         this.carregar();
     }
 
     carregar(): void {
-        if (this.carregamento) {
+        if (this.carregamento()) {
             return;
         }
-        this.carregamento = true;
+        this.carregamento.set(true);
         const busca = this.busca.value.trim();
         this.config
             .listar({
                 ...this.config.montarFiltro(),
                 busca: busca || undefined,
-                page: this.pagina + 1,
-                page_size: this.tamanhoPagina,
+                page: this.pagina() + 1,
+                page_size: this.tamanhoPagina(),
             })
-            .pipe(finalize(() => (this.carregamento = false)))
+            .pipe(finalize(() => this.carregamento.set(false)))
             .subscribe({
                 next: (pagina) => {
-                    this.itens = pagina.items;
-                    this.total = pagina.count;
+                    this.itens.set(pagina.items);
+                    this.total.set(pagina.count);
                 },
                 error: (erro) => this.config.notificacao.erro(erro),
             });
     }
 
     paginar(evento: PageEvent): void {
-        this.pagina = evento.pageIndex;
-        this.tamanhoPagina = evento.pageSize;
+        this.pagina.set(evento.pageIndex);
+        this.tamanhoPagina.set(evento.pageSize);
         this.carregar();
     }
 
@@ -122,8 +123,8 @@ export class OrquestradorListagem<T, F> {
         this.config.excluir(this.config.extrairId(item)).subscribe({
             next: () => {
                 this.config.notificacao.sucesso(this.config.mensagemExcluido);
-                if (this.itens.length === 1 && this.pagina > 0) {
-                    this.pagina--;
+                if (this.itens().length === 1 && this.pagina() > 0) {
+                    this.pagina.set(this.pagina() - 1);
                 }
                 this.carregar();
             },

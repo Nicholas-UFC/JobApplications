@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { ActivatedRoute } from '@angular/router';
@@ -51,8 +51,8 @@ export class CandidaturaComponent implements OnInit {
     private readonly rota = inject(ActivatedRoute);
 
     protected readonly colunas = ['id', 'nome', 'empresa', 'plataforma', 'status', 'acoes'];
-    protected plataformasLista: Plataforma[] = [];
-    protected plataformasNomes: Record<number, string> = {};
+    protected readonly plataformasLista = signal<Plataforma[]>([]);
+    protected readonly plataformasNomes = signal<Record<number, string>>({});
     protected readonly opcoesStatus = STATUS_CANDIDATURA;
 
     protected readonly filtroStatus = new FormControl<StatusCandidatura | ''>('', {
@@ -77,23 +77,23 @@ export class CandidaturaComponent implements OnInit {
     });
 
     protected get candidaturasLista(): Candidatura[] {
-        return this.listagem.itens;
+        return this.listagem.itens();
     }
 
     protected get total(): number {
-        return this.listagem.total;
+        return this.listagem.total();
     }
 
     protected get pagina(): number {
-        return this.listagem.pagina;
+        return this.listagem.pagina();
     }
 
     protected get tamanhoPagina(): number {
-        return this.listagem.tamanhoPagina;
+        return this.listagem.tamanhoPagina();
     }
 
     protected get carregamento(): boolean {
-        return this.listagem.carregamento;
+        return this.listagem.carregamento();
     }
 
     protected get busca() {
@@ -134,7 +134,7 @@ export class CandidaturaComponent implements OnInit {
     }
 
     nomePlataforma(plataformaId: number): string {
-        return this.plataformasNomes[plataformaId] ?? '—';
+        return this.plataformasNomes()[plataformaId] ?? '—';
     }
 
     rotuloStatus(status: StatusCandidatura): string {
@@ -165,9 +165,11 @@ export class CandidaturaComponent implements OnInit {
     private carregarPlataformas(): void {
         this.plataformas.listar({ page_size: 100 }).subscribe({
             next: (pagina) => {
-                this.plataformasLista = pagina.items;
-                this.plataformasNomes = Object.fromEntries(
-                    pagina.items.map((plataforma) => [plataforma.id, plataforma.nome]),
+                this.plataformasLista.set(pagina.items);
+                this.plataformasNomes.set(
+                    Object.fromEntries(
+                        pagina.items.map((plataforma) => [plataforma.id, plataforma.nome]),
+                    ),
                 );
             },
             error: (erro) => this.notificacao.erro(erro),

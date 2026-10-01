@@ -53,9 +53,9 @@
                         mat-flat-button
                         color="primary"
                         type="submit"
-                        [disabled]="formulario.invalid || carregamento"
+                        [disabled]="formulario.invalid || carregamento()"
                     >
-                        @if (carregamento) {
+                        @if (carregamento()) {
                             <mat-spinner diameter="20" class="login__spinner" />
                         } @else {
                             <mat-icon>login</mat-icon>

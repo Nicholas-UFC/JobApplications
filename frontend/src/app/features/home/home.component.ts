@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -25,16 +25,16 @@ export class Home implements OnInit {
     private readonly notificacao = inject(NotificacaoService);
 
     protected readonly trilho = STATUS_CANDIDATURA;
-    protected totais: Record<StatusCandidatura, number> = {
+    protected readonly totais = signal<Record<StatusCandidatura, number>>({
         ENVIADO: 0,
         REJEITADO: 0,
         ENTREVISTA: 0,
         PROPOSTA: 0,
         APROVADA: 0,
-    };
-    protected total = 0;
-    protected recentes: Candidatura[] = [];
-    protected carregamento = true;
+    });
+    protected readonly total = signal(0);
+    protected readonly recentes = signal<Candidatura[]>([]);
+    protected readonly carregamento = signal(true);
 
     ngOnInit(): void {
         forkJoin(
@@ -43,22 +43,30 @@ export class Home implements OnInit {
             ),
         ).subscribe({
             next: (paginas) => {
+                const acumulados: Record<StatusCandidatura, number> = {
+                    ENVIADO: 0,
+                    REJEITADO: 0,
+                    ENTREVISTA: 0,
+                    PROPOSTA: 0,
+                    APROVADA: 0,
+                };
                 paginas.forEach((pagina, indice) => {
-                    this.totais[this.trilho[indice].valor] = pagina.count;
+                    acumulados[this.trilho[indice].valor] = pagina.count;
                 });
-                this.total = Object.values(this.totais).reduce((soma, valor) => soma + valor, 0);
+                this.totais.set(acumulados);
+                this.total.set(Object.values(acumulados).reduce((soma, valor) => soma + valor, 0));
             },
             error: (erro) => this.notificacao.erro(erro),
         });
 
         this.candidaturas.listar({ page: 1, page_size: 5 }).subscribe({
             next: (pagina) => {
-                this.recentes = pagina.items;
-                this.carregamento = false;
+                this.recentes.set(pagina.items);
+                this.carregamento.set(false);
             },
             error: (erro) => {
                 this.notificacao.erro(erro);
-                this.carregamento = false;
+                this.carregamento.set(false);
             },
         });
     }
@@ -68,10 +76,11 @@ export class Home implements OnInit {
     }
 
     protected largura(status: StatusCandidatura): string {
-        if (this.total === 0) {
+        const total = this.total();
+        if (total === 0) {
             return '0%';
         }
-        const fatia = (this.totais[status] / this.total) * 100;
+        const fatia = (this.totais()[status] / total) * 100;
         if (fatia === 0) {
             return '0%';
         }

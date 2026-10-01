@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
 import { Router } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -28,28 +28,28 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 })
 export class LoginComponent {
     private readonly auth = inject(AuthService);
-    private readonly notificacao = inject(NotificacaoService); 
+    private readonly notificacao = inject(NotificacaoService);
     private readonly router = inject(Router);
 
     protected readonly formulario = new FormGroup({
-        usuario: new FormControl("", [Validators.required]),
-        senha: new FormControl("", [Validators.required]),
-    })
+        usuario: new FormControl('', [Validators.required]),
+        senha: new FormControl('', [Validators.required]),
+    });
 
-    protected carregamento = false;
+    protected readonly carregamento = signal(false);
 
     entrar(): void {
-        if (this.formulario.invalid || this.carregamento) {
-        return;
+        if (this.formulario.invalid || this.carregamento()) {
+            return;
         }
         const { usuario, senha } = this.formulario.value;
-        this.carregamento = true;
+        this.carregamento.set(true);
         this.auth
-        .login({ username: usuario ?? "", password: senha ?? "" })
-        .pipe(finalize(() => (this.carregamento = false)))
-        .subscribe({
-            next: () => this.router.navigate(["/"]),
-            error: (erro) => this.notificacao.erro(erro),
-        });
+            .login({ username: usuario ?? '', password: senha ?? '' })
+            .pipe(finalize(() => this.carregamento.set(false)))
+            .subscribe({
+                next: () => this.router.navigate(['/']),
+                error: (erro) => this.notificacao.erro(erro),
+            });
     }
 }

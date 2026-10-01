@@ -23,7 +23,7 @@
         <mat-form-field class="candidatura-dialog__campo" appearance="outline">
             <mat-label>Plataforma</mat-label>
             <mat-select formControlName="plataforma_id" required>
-                @for (plataforma of plataformasLista; track plataforma.id) {
+                @for (plataforma of plataformasLista(); track plataforma.id) {
                     <mat-option [value]="plataforma.id">{{ plataforma.nome }}</mat-option>
                 }
             </mat-select>

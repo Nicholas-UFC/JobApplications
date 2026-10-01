@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -66,11 +66,11 @@ export class CandidaturaDialogComponent implements OnInit {
     }
 
     protected get carregamento(): boolean {
-        return this.salvarEstado.carregamento;
+        return this.salvarEstado.carregamento();
     }
 
     protected readonly opcoesStatus = STATUS_CANDIDATURA;
-    protected plataformasLista: Plataforma[] = [];
+    protected readonly plataformasLista = signal<Plataforma[]>([]);
 
     protected readonly formulario = new FormGroup({
         nome: new FormControl(this.dados?.candidatura?.nome ?? '', [Validators.required]),
@@ -87,7 +87,7 @@ export class CandidaturaDialogComponent implements OnInit {
 
     ngOnInit(): void {
         this.plataformas.listar({ page_size: 100 }).subscribe({
-            next: (pagina) => (this.plataformasLista = pagina.items),
+            next: (pagina) => this.plataformasLista.set(pagina.items),
             error: (erro) => this.notificacao.erro(erro),
         });
     }

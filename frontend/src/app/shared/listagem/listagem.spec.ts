@@ -53,8 +53,8 @@ describe('OrquestradorListagem', () => {
             page: 1,
             page_size: 10,
         });
-        expect(listagem.itens).toEqual(ITENS);
-        expect(listagem.total).toBe(1);
+        expect(listagem.itens()).toEqual(ITENS);
+        expect(listagem.total()).toBe(1);
     });
 
     it('deve buscar com debounce e incluir filtros do adapter', () => {
@@ -72,7 +72,7 @@ describe('OrquestradorListagem', () => {
                 page: 1,
                 page_size: 10,
             });
-            expect(listagem.pagina).toBe(0);
+            expect(listagem.pagina()).toBe(0);
         } finally {
             vi.useRealTimers();
         }
@@ -80,9 +80,9 @@ describe('OrquestradorListagem', () => {
 
     it('deve recarregar do início ao trocar filtro extra', () => {
         const { listagem, config } = criar();
-        listagem.pagina = 2;
+        listagem.pagina.set(2);
         listagem.recarregarDoInicio();
-        expect(listagem.pagina).toBe(0);
+        expect(listagem.pagina()).toBe(0);
         expect(config.listar).toHaveBeenCalled();
     });
 
@@ -143,9 +143,9 @@ describe('OrquestradorListagem', () => {
         const afterClosed = vi.fn().mockReturnValue(of(true));
         vi.mocked(config.dialog.open).mockReturnValue({ afterClosed } as never);
         listagem.iniciar();
-        listagem.pagina = 1;
+        listagem.pagina.set(1);
         listagem.confirmarExclusao(ITENS[0]);
-        expect(listagem.pagina).toBe(0);
+        expect(listagem.pagina()).toBe(0);
     });
 
     it('deve exibir erro e manter lista quando exclusão falha', () => {
@@ -157,6 +157,6 @@ describe('OrquestradorListagem', () => {
         listagem.iniciar();
         listagem.confirmarExclusao(ITENS[0]);
         expect(notificacao.erro).toHaveBeenCalled();
-        expect(listagem.itens).toEqual(ITENS);
+        expect(listagem.itens()).toEqual(ITENS);
     });
 });

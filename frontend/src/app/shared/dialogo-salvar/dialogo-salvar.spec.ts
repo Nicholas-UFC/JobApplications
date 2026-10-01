@@ -75,7 +75,7 @@ describe('OrquestradorSalvar', () => {
         expect(config.criar).toHaveBeenCalledWith({ nome: 'LinkedIn' });
         expect(notificacao.sucesso).toHaveBeenCalledWith('Salvo.');
         expect(fechar).toHaveBeenCalledWith(true);
-        expect(salvar.carregamento).toBe(false);
+        expect(salvar.carregamento()).toBe(false);
     });
 
     it('deve atualizar preservando o id de edição e fechar com true', () => {
@@ -108,7 +108,7 @@ describe('OrquestradorSalvar', () => {
         );
         expect(notificacao.erro).toHaveBeenCalled();
         expect(fechar).not.toHaveBeenCalled();
-        expect(salvar.carregamento).toBe(false);
+        expect(salvar.carregamento()).toBe(false);
     });
 
     it('deve fechar com false ao cancelar', () => {

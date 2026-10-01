@@ -52,23 +52,23 @@ export class PlataformaComponent implements OnInit {
     });
 
     protected get plataformasLista(): Plataforma[] {
-        return this.listagem.itens;
+        return this.listagem.itens();
     }
 
     protected get total(): number {
-        return this.listagem.total;
+        return this.listagem.total();
     }
 
     protected get pagina(): number {
-        return this.listagem.pagina;
+        return this.listagem.pagina();
     }
 
     protected get tamanhoPagina(): number {
-        return this.listagem.tamanhoPagina;
+        return this.listagem.tamanhoPagina();
     }
 
     protected get carregamento(): boolean {
-        return this.listagem.carregamento;
+        return this.listagem.carregamento();
     }
 
     protected get busca() {

@@ -1,4 +1,5 @@
 import { FormGroup } from '@angular/forms';
+import { signal } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Observable, finalize } from 'rxjs';
 import { NotificacaoService } from '../services/notificacao.service';
@@ -21,7 +22,7 @@ export interface ConfigSalvar<Create, Update> {
  * Composition: cada dialog instancia o seu com a sua ConfigSalvar.
  */
 export class OrquestradorSalvar<Create, Update> {
-    carregamento = false;
+    readonly carregamento = signal(false);
 
     readonly modoEdicao: boolean;
 
@@ -37,15 +38,15 @@ export class OrquestradorSalvar<Create, Update> {
         montarCriacao: () => Create,
         montarAtualizacao: () => Update,
     ): void {
-        if (formulario.invalid || this.carregamento) {
+        if (formulario.invalid || this.carregamento()) {
             return;
         }
-        this.carregamento = true;
+        this.carregamento.set(true);
         const requisicao =
             this.modoEdicao && this.idEdicao != null
                 ? this.config.atualizar(this.idEdicao, montarAtualizacao())
                 : this.config.criar(montarCriacao());
-        requisicao.pipe(finalize(() => (this.carregamento = false))).subscribe({
+        requisicao.pipe(finalize(() => this.carregamento.set(false))).subscribe({
             next: () => {
                 this.config.notificacao.sucesso(
                     this.modoEdicao ? this.config.mensagemAtualizado : this.config.mensagemCriado,

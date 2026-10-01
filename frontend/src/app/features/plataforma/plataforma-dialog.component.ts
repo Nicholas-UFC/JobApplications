@@ -58,7 +58,7 @@ export class PlataformaDialogComponent {
     }
 
     protected get carregamento(): boolean {
-        return this.salvarEstado.carregamento;
+        return this.salvarEstado.carregamento();
     }
 
     protected readonly formulario = new FormGroup({

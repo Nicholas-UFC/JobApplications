@@ -3,7 +3,7 @@
         <div>
             <h1 class="painel__titulo brand-titulo">Mesa de acompanhamento</h1>
             <p class="painel__descricao">
-                {{ total }} candidaturas no arquivo. Escolha uma etapa no trilho para filtrar a
+                {{ total() }} candidaturas no arquivo. Escolha uma etapa no trilho para filtrar a
                 lista.
             </p>
         </div>
@@ -21,11 +21,11 @@
 
     <mat-card class="trilho">
         <mat-card-content>
-            @if (carregamento && total === 0) {
+            @if (carregamento() && total() === 0) {
                 <div class="trilho__carregamento">
                     <mat-spinner diameter="32" />
                 </div>
-            } @else if (total === 0) {
+            } @else if (total() === 0) {
                 <p class="trilho__vazio">
                     Nenhuma candidatura registrada. Adicione a primeira para iniciar o
                     acompanhamento.
@@ -41,7 +41,7 @@
                             [style.flex-basis]="largura(etapa.valor)"
                             [attr.aria-label]="'Filtrar candidaturas com status ' + etapa.rotulo"
                         >
-                            <span class="trilho__numero">{{ totais[etapa.valor] }}</span>
+                            <span class="trilho__numero">{{ totais()[etapa.valor] }}</span>
                             <span class="trilho__rotulo">{{ etapa.rotulo }}</span>
                         </a>
                     }
@@ -56,15 +56,15 @@
             <mat-card-subtitle>Últimas candidaturas registradas no arquivo</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
-            @if (carregamento) {
+            @if (carregamento()) {
                 <div class="recentes__carregamento">
                     <mat-spinner diameter="32" />
                 </div>
-            } @else if (recentes.length === 0) {
+            } @else if (recentes().length === 0) {
                 <p class="recentes__vazio">Nenhuma candidatura encontrada.</p>
             } @else {
                 <ul class="recentes__lista">
-                    @for (item of recentes; track item.id) {
+                    @for (item of recentes(); track item.id) {
                         <li class="recentes__linha">
                             <div>
                                 <p class="recentes__nome">{{ item.nome }}</p>
