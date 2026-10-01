@@ -1,0 +1,180 @@
+.painel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 68ch;
+
+    &__topo {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        align-items: flex-end;
+        justify-content: space-between;
+    }
+
+    &__titulo {
+        font-size: 39px;
+        margin: 0 0 8px;
+        color: var(--arquivo-tinta);
+    }
+
+    &__descricao {
+        margin: 0;
+        color: var(--arquivo-tinta-suave);
+        max-width: 52ch;
+    }
+
+    &__acoes {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+}
+
+.trilho {
+    background-color: var(--arquivo-painel);
+    border: 1px solid var(--arquivo-linha);
+    border-left: 4px solid var(--arquivo-farol);
+
+    &__carregamento {
+        display: flex;
+        justify-content: center;
+        padding: 24px;
+    }
+
+    &__vazio {
+        margin: 0;
+        padding: 16px 4px;
+        color: var(--arquivo-tinta-suave);
+    }
+
+    &__barra {
+        display: flex;
+        gap: 8px;
+        align-items: stretch;
+        animation: trilho-entrada 480ms ease-out both;
+    }
+
+    &__etapa {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 2px;
+        min-width: 0;
+        padding: 14px 16px;
+        border-radius: 10px;
+        text-decoration: none;
+        border: 1px solid var(--arquivo-linha);
+        background-color: var(--arquivo-painel-elevado);
+        transition: border-color 160ms ease;
+
+        &:hover {
+            border-color: var(--arquivo-farol);
+        }
+
+        &--ENVIADO {
+            border-top: 4px solid var(--arquivo-enviado);
+        }
+
+        &--ENTREVISTA {
+            border-top: 4px solid var(--arquivo-entrevista);
+        }
+
+        &--PROPOSTA {
+            border-top: 4px solid var(--arquivo-proposta);
+        }
+
+        &--APROVADA {
+            border-top: 4px solid var(--arquivo-aprovada);
+        }
+
+        &--REJEITADO {
+            border-top: 4px solid var(--arquivo-rejeitada);
+        }
+    }
+
+    &__numero {
+        font-family: 'Zilla Slab', Georgia, serif;
+        font-size: 31px;
+        line-height: 1;
+        color: var(--arquivo-tinta);
+    }
+
+    &__rotulo {
+        font-size: 14px;
+        color: var(--arquivo-tinta-suave);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+.recentes {
+    background-color: var(--arquivo-painel);
+    border: 1px solid var(--arquivo-linha);
+
+    &__carregamento {
+        display: flex;
+        justify-content: center;
+        padding: 24px;
+    }
+
+    &__vazio {
+        color: var(--arquivo-tinta-suave);
+    }
+
+    &__lista {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    &__linha {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 4px;
+        border-top: 2px solid var(--arquivo-linha);
+
+        &:first-child {
+            border-top: 0;
+        }
+    }
+
+    &__nome {
+        margin: 0;
+        font-weight: 600;
+    }
+
+    &__empresa {
+        margin: 2px 0 0;
+        color: var(--arquivo-tinta-suave);
+        font-size: 14px;
+    }
+}
+
+@keyframes trilho-entrada {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 720px) {
+    .painel__titulo {
+        font-size: 31px;
+    }
+
+    .trilho__barra {
+        flex-direction: column;
+    }
+
+    .trilho__etapa {
+        flex-basis: auto !important;
+    }
+}

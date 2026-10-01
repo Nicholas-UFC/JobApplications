@@ -1,1 +1,82 @@
-<p>home works!</p>
+<section class="painel">
+    <header class="painel__topo">
+        <div>
+            <h1 class="painel__titulo brand-titulo">Mesa de acompanhamento</h1>
+            <p class="painel__descricao">
+                {{ total }} candidaturas no arquivo. Escolha uma etapa no trilho para filtrar a
+                lista.
+            </p>
+        </div>
+        <div class="painel__acoes">
+            <a mat-flat-button color="primary" routerLink="/candidatura">
+                <mat-icon>work</mat-icon>
+                Ver candidaturas
+            </a>
+            <a mat-button routerLink="/plataforma">
+                <mat-icon>public</mat-icon>
+                Ver plataformas
+            </a>
+        </div>
+    </header>
+
+    <mat-card class="trilho">
+        <mat-card-content>
+            @if (carregamento && total === 0) {
+                <div class="trilho__carregamento">
+                    <mat-spinner diameter="32" />
+                </div>
+            } @else if (total === 0) {
+                <p class="trilho__vazio">
+                    Nenhuma candidatura registrada. Adicione a primeira para iniciar o
+                    acompanhamento.
+                </p>
+            } @else {
+                <div class="trilho__barra" role="list">
+                    @for (etapa of trilho; track etapa.valor) {
+                        <a
+                            role="listitem"
+                            class="trilho__etapa trilho__etapa--{{ etapa.valor }}"
+                            [routerLink]="['/candidatura']"
+                            [queryParams]="{ status: etapa.valor }"
+                            [style.flex-basis]="largura(etapa.valor)"
+                            [attr.aria-label]="'Filtrar candidaturas com status ' + etapa.rotulo"
+                        >
+                            <span class="trilho__numero">{{ totais[etapa.valor] }}</span>
+                            <span class="trilho__rotulo">{{ etapa.rotulo }}</span>
+                        </a>
+                    }
+                </div>
+            }
+        </mat-card-content>
+    </mat-card>
+
+    <mat-card class="recentes">
+        <mat-card-header>
+            <mat-card-title class="brand-titulo">Movimento recente</mat-card-title>
+            <mat-card-subtitle>Últimas candidaturas registradas no arquivo</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+            @if (carregamento) {
+                <div class="recentes__carregamento">
+                    <mat-spinner diameter="32" />
+                </div>
+            } @else if (recentes.length === 0) {
+                <p class="recentes__vazio">Nenhuma candidatura encontrada.</p>
+            } @else {
+                <ul class="recentes__lista">
+                    @for (item of recentes; track item.id) {
+                        <li class="recentes__linha">
+                            <div>
+                                <p class="recentes__nome">{{ item.nome }}</p>
+                                <p class="recentes__empresa">{{ item.empresa }}</p>
+                            </div>
+                            <span class="carimbo carimbo--{{ item.status }}">{{
+                                rotulo(item.status)
+                            }}</span>
+                        </li>
+                    }
+                </ul>
+            }
+        </mat-card-content>
+    </mat-card>
+</section>

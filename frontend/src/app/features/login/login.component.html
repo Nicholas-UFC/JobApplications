@@ -1,24 +1,34 @@
 <div class="login">
+    <section class="login__painel">
+        <p class="login__marca brand-titulo">JobApplications</p>
+        <h1 class="login__titulo brand-titulo">Arquivo noturno da busca por emprego</h1>
+        <p class="login__texto">
+            Acompanhe candidaturas por etapa: enviado, entrevista, proposta recebida, aprovada ou
+            rejeitada. Cada status vira um carimbo no trilho.
+        </p>
+        <ul class="login__trilho">
+            <li class="login__etapa login__etapa--ENVIADO">Enviado</li>
+            <li class="login__etapa login__etapa--ENTREVISTA">Entrevista</li>
+            <li class="login__etapa login__etapa--PROPOSTA">Proposta recebida</li>
+            <li class="login__etapa login__etapa--APROVADA">Aprovada</li>
+            <li class="login__etapa login__etapa--REJEITADO">Rejeitado</li>
+        </ul>
+    </section>
+
     <mat-card class="login__card">
         <mat-card-header class="login__cabecalho">
             <img src="favicon.ico" alt="logo" class="login__logo" />
-            <mat-card-title>JobApplications</mat-card-title>
+            <mat-card-title class="brand-titulo">Entrar no arquivo</mat-card-title>
             <mat-card-subtitle>Acesse com suas credenciais</mat-card-subtitle>
         </mat-card-header>
 
         <mat-card-content>
             <form [formGroup]="formulario" (ngSubmit)="entrar()">
-                
                 <mat-form-field class="login__campo" appearance="outline">
                     <mat-label>Usuário</mat-label>
                     <mat-icon matPrefix>person</mat-icon>
-                    <input 
-                        matInput 
-                        formControlName="usuario" 
-                        autocomplete="username" 
-                        required
-                    />
-                    @if (formulario.controls.usuario.hasError("required")) {
+                    <input matInput formControlName="usuario" autocomplete="username" required />
+                    @if (formulario.controls.usuario.hasError('required')) {
                         <mat-error>Informe o Usuário.</mat-error>
                     }
                 </mat-form-field>
@@ -33,13 +43,13 @@
                         autocomplete="current-password"
                         required
                     />
-                    @if (formulario.controls.senha.hasError("required")) {
+                    @if (formulario.controls.senha.hasError('required')) {
                         <mat-error>Informe a senha.</mat-error>
                     }
                 </mat-form-field>
 
                 <mat-card-actions align="end">
-                    <button 
+                    <button
                         mat-flat-button
                         color="primary"
                         type="submit"
@@ -53,7 +63,6 @@
                         Entrar
                     </button>
                 </mat-card-actions>
-
             </form>
         </mat-card-content>
     </mat-card>

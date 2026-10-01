@@ -1,7 +1,7 @@
 <div class="candidatura">
     <mat-card class="candidatura__card">
         <mat-card-header class="candidatura__cabecalho">
-            <mat-card-title>Candidaturas</mat-card-title>
+            <mat-card-title class="brand-titulo">Candidaturas</mat-card-title>
             <mat-card-subtitle>Vagas às quais você se candidatou</mat-card-subtitle>
         </mat-card-header>
 
@@ -91,7 +91,9 @@
                     <ng-container matColumnDef="status">
                         <th mat-header-cell *matHeaderCellDef>Status</th>
                         <td mat-cell *matCellDef="let candidatura">
-                            {{ rotuloStatus(candidatura.status) }}
+                            <span class="carimbo carimbo--{{ candidatura.status }}">{{
+                                rotuloStatus(candidatura.status)
+                            }}</span>
                         </td>
                     </ng-container>
 

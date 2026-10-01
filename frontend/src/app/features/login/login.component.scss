@@ -1,14 +1,70 @@
 .login {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 32px;
     align-items: center;
-    justify-content: center;
     min-height: 100vh;
-    background-color: color-mix(7
-        in srgb, 
-        var (--mat-sys-primary) 6%, 
-        var (--mat-sys-surface)
-    );
-    padding: 24px;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 32px 24px;
+    background-color: var(--arquivo-fundo);
+    color: var(--arquivo-tinta);
+
+    &__marca {
+        color: var(--arquivo-farol);
+        font-size: 20px;
+        margin: 0 0 12px;
+    }
+
+    &__titulo {
+        font-size: 39px;
+        margin: 0 0 12px;
+        max-width: 22ch;
+    }
+
+    &__texto {
+        margin: 0 0 20px;
+        color: var(--arquivo-tinta-suave);
+        max-width: 52ch;
+    }
+
+    &__trilho {
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 0;
+        padding: 0;
+    }
+
+    &__etapa {
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 14px;
+        font-weight: 600;
+        border: 1px solid var(--arquivo-linha);
+        background-color: var(--arquivo-painel);
+
+        &--ENVIADO {
+            border-top: 3px solid var(--arquivo-enviado);
+        }
+
+        &--ENTREVISTA {
+            border-top: 3px solid var(--arquivo-entrevista);
+        }
+
+        &--PROPOSTA {
+            border-top: 3px solid var(--arquivo-proposta);
+        }
+
+        &--APROVADA {
+            border-top: 3px solid var(--arquivo-aprovada);
+        }
+
+        &--REJEITADO {
+            border-top: 3px solid var(--arquivo-rejeitada);
+        }
+    }
 
     &__campo {
         display: block;
@@ -17,19 +73,23 @@
 
     &__card {
         width: 100%;
-        max-width: 400px;
+        max-width: 420px;
+        justify-self: end;
         padding: 16px;
+        background-color: var(--arquivo-painel);
+        border: 1px solid var(--arquivo-linha);
+        border-left: 4px solid var(--arquivo-farol);
     }
 
     &__cabecalho {
         flex-direction: column;
-        align-items: center;
-        text-align: center;
+        align-items: flex-start;
+        text-align: left;
     }
 
     &__logo {
-        width: 64px;
-        height: 64px;
+        width: 48px;
+        height: 48px;
         margin-bottom: 8px;
     }
 
@@ -37,5 +97,20 @@
         display: inline-block;
         vertical-align: middle;
         margin-right: 8px;
+    }
+}
+
+@media (max-width: 860px) {
+    .login {
+        grid-template-columns: 1fr;
+
+        &__titulo {
+            font-size: 31px;
+        }
+
+        &__card {
+            justify-self: stretch;
+            max-width: none;
+        }
     }
 }

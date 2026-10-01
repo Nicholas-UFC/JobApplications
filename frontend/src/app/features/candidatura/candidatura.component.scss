@@ -1,12 +1,14 @@
 .candidatura {
     display: flex;
-    justify-content: center;
-    padding: 24px;
+    justify-content: flex-start;
 
     &__card {
         width: 100%;
-        max-width: 960px;
-        padding: 16px;
+        max-width: 1080px;
+        padding: 20px;
+        background-color: var(--arquivo-painel);
+        border: 1px solid var(--arquivo-linha);
+        border-left: 4px solid var(--arquivo-farol);
     }
 
     &__barra {
@@ -29,6 +31,7 @@
 
     &__tabela {
         width: 100%;
+        background-color: transparent;
     }
 
     &__acoes {
@@ -42,8 +45,8 @@
     }
 
     &__vazio {
-        text-align: center;
-        padding: 32px;
-        color: var(--mat-sys-on-surface-variant);
+        text-align: left;
+        padding: 32px 8px;
+        color: var(--arquivo-tinta-suave);
     }
 }

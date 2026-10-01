@@ -1,6 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { ActivatedRoute } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -47,6 +48,7 @@ export class CandidaturaComponent implements OnInit {
     private readonly plataformas = inject(PlataformaService);
     private readonly notificacao = inject(NotificacaoService);
     private readonly dialog = inject(MatDialog);
+    private readonly rota = inject(ActivatedRoute);
 
     protected readonly colunas = ['id', 'nome', 'empresa', 'plataforma', 'status', 'acoes'];
     protected plataformasLista: Plataforma[] = [];
@@ -99,6 +101,10 @@ export class CandidaturaComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        const statusInicial = this.rota.snapshot.queryParamMap.get('status');
+        if (statusInicial && this.opcoesStatus.some((opcao) => opcao.valor === statusInicial)) {
+            this.filtroStatus.setValue(statusInicial as StatusCandidatura);
+        }
         this.filtroStatus.valueChanges.subscribe(() => this.listagem.recarregarDoInicio());
         this.filtroPlataforma.valueChanges.subscribe(() => this.listagem.recarregarDoInicio());
         this.carregarPlataformas();
