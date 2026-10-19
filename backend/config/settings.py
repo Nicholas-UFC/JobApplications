@@ -17,7 +17,15 @@ load_dotenv(BASE_DIR / ".env")
 SECRET_KEY = environ.get("SECRET_KEY")
 DEBUG = environ.get("DEBUG") == "True"
 
-ALLOWED_HOSTS = []
+
+def _lista_env(nome: str, padrao: str) -> list[str]:
+    valor = environ.get(nome, padrao)
+    return [h.strip() for h in valor.split(",") if h.strip()]
+
+
+ALLOWED_HOSTS = _lista_env(
+    "ALLOWED_HOSTS", "localhost,127.0.0.1,backend,frontend"
+)
 
 
 # Application definition
@@ -48,9 +56,10 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:4200",
-]
+CSRF_TRUSTED_ORIGINS = _lista_env(
+    "CSRF_TRUSTED_ORIGINS",
+    "http://localhost:4200,http://localhost:4000,http://localhost:8000",
+)
 
 ROOT_URLCONF = "config.urls"
 
@@ -74,13 +83,26 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "database" / "db.sqlite3",
+# Usa PostgreSQL quando POSTGRES_HOST está definido (Docker);
+# caso contrário mantém o SQLite local em database/db.sqlite3.
+if environ.get("POSTGRES_HOST"):
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": environ.get("POSTGRES_DB", "jobapplications"),
+            "USER": environ.get("POSTGRES_USER", "jobapplications"),
+            "PASSWORD": environ.get("POSTGRES_PASSWORD", ""),
+            "HOST": environ.get("POSTGRES_HOST"),
+            "PORT": environ.get("POSTGRES_PORT", "5432"),
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "database" / "db.sqlite3",
+        }
+    }
 
 
 # Password validation
@@ -118,6 +140,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 
 # Email
