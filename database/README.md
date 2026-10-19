@@ -5,7 +5,7 @@
 
 # Database
 
-*SQLite local do JobApplications, criado pelas migrações do Django.*
+_PostgreSQL no Docker; SQLite como fallback local. Esquema via migrações do Django._
 
 [Visão geral](#visão-geral) • [Criação](#criação) • [Reset e backup](#reset-e-backup) • [Solução de problemas](#solução-de-problemas)
 
@@ -13,11 +13,22 @@
 
 ## Visão geral
 
-O banco é um arquivo SQLite em `database/db.sqlite3`, configurado em `backend/config/settings.py` a partir da raiz do repositório. O arquivo não é versionado (`*.sqlite3` está no `.gitignore`); um `.gitkeep` mantém a pasta no clone.
+No Docker (`compose.yaml`, serviço `db`), o banco é PostgreSQL 17 com dados
+no volume `pgdata`; o backend conecta via `POSTGRES_*` do `.env` e as
+migrações rodam no boot. Sem `POSTGRES_HOST` (ambiente local), o backend usa
+SQLite em `database/db.sqlite3`, configurado em
+`backend/config/settings.py`. O arquivo SQLite não é versionado
+(`*.sqlite3` está no `.gitignore`); um `.gitkeep` mantém a pasta no clone.
 
 ## Criação
 
-Execute a partir de `backend/`, com o `.env` na raiz do repositório:
+No Docker, na raiz do repositório (o `migrate` roda sozinho no boot):
+
+```powershell
+docker compose up -d --build
+```
+
+No ambiente local, a partir de `backend/`, com o `.env` na raiz:
 
 ```powershell
 cd backend
@@ -25,23 +36,38 @@ uv run python manage.py migrate
 ```
 
 > [!IMPORTANT]
-> Clone novo exige `.env` com `SECRET_KEY` e `DEBUG=True`, seguido de `migrate`, antes de iniciar o backend ou o frontend.
+> Sem Docker, clone novo exige `.env` com `SECRET_KEY` e `DEBUG=True`,
+> seguido de `migrate`, antes de iniciar o backend ou o frontend.
 
 ## Reset e backup
 
-Para recomeçar do zero, com o servidor parado:
+No Docker, com a stack parada (`docker compose down`):
+
+```powershell
+docker compose down -v  # apaga o volume pgdata (perde todos os dados)
+docker compose up -d    # recria o banco vazio e reaplica as migrações
+```
+
+Para backup do Postgres:
+
+```powershell
+docker compose exec db pg_dump -U jobapplications jobapplications > backup.sql
+```
+
+No SQLite local, com o servidor parado:
 
 ```powershell
 Remove-Item ..\database\db.sqlite3
 uv run python manage.py migrate
 ```
 
-Para backup, basta copiar o arquivo `db.sqlite3` com o servidor parado. Não há dumps nem migrações manuais: o esquema evolui via `makemigrations`/`migrate` no backend.
+Não há migrações manuais: o esquema evolui via `makemigrations`/`migrate`.
 
 ## Solução de problemas
 
-| Sintoma | Causa provável | Ação |
-| ------- | -------------- | ---- |
-| `no such table` ao rodar | `migrate` não aplicado | Rodar `uv run python manage.py migrate` em `backend/` |
-| `SECRET_KEY` fica `None` | `.env` ausente na raiz | Copiar `.env.example` para `.env` na raiz |
-| Arquivo travado no Windows | Servidor ainda rodando | Parar backend/frontend antes de apagar ou copiar |
+| Sintoma                  | Causa provável         | Ação                                                  |
+| ------------------------ | ---------------------- | ----------------------------------------------------- |
+| `no such table` (local)  | `migrate` não aplicado | Rodar `uv run python manage.py migrate` em `backend/` |
+| `SECRET_KEY` fica `None` | `.env` ausente na raiz | Copiar `.env.example` para `.env` na raiz             |
+| Porta `5432` ocupada     | Outro Postgres no host | Definir `POSTGRES_EXPOSTA=5433` no `.env`             |
+| Arquivo SQLite travado   | Servidor ainda rodando | Parar backend/frontend antes de apagar ou copiar      |

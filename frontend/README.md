@@ -5,7 +5,7 @@
 
 # Frontend
 
-*Interface Angular do JobApplications, com autenticação e gestão de Candidaturas e Plataformas.*
+_Interface Angular do JobApplications, com autenticação e gestão de Candidaturas e Plataformas._
 
 [Visão geral](#visão-geral) • [Rotas](#rotas) • [Início rápido](#início-rápido) • [Estrutura](#estrutura) • [Comandos](#comandos)
 
@@ -17,11 +17,11 @@ Aplicação Angular 22 com Angular Material e SSR. O dev server usa `proxy.conf.
 
 ## Rotas
 
-| Rota           | Tela                              | Acesso     |
-| -------------- | --------------------------------- | ---------- |
-| `/login`       | Login                             | Pública    |
-| `/`            | Home                              | Autenticado |
-| `/plataforma`  | Lista, cria, edita e exclui Plataformas | Autenticado |
+| Rota           | Tela                                     | Acesso      |
+| -------------- | ---------------------------------------- | ----------- |
+| `/login`       | Login                                    | Pública     |
+| `/`            | Home                                     | Autenticado |
+| `/plataforma`  | Lista, cria, edita e exclui Plataformas  | Autenticado |
 | `/candidatura` | Lista, cria, edita e exclui Candidaturas | Autenticado |
 
 As rotas autenticadas passam pelo `authGuard` dentro do `ShellComponent`. O menu lateral inclui link para o `/admin/` do Django quando o usuário é admin.
@@ -32,6 +32,20 @@ As rotas autenticadas passam pelo `authGuard` dentro do `ShellComponent`. O menu
 
 - [Node.js](https://nodejs.org/) e npm (o projeto usa npm 11)
 - Backend rodando em `http://localhost:8000` (ver `backend/README.md`)
+
+### Via Docker
+
+Na raiz do repositório:
+
+```powershell
+docker compose up -d --build frontend
+```
+
+Abra [http://localhost:4000](http://localhost:4000). O servidor SSR (`src/server.ts`)
+encaminha `/api`, `/admin` e `/static` para `BACKEND_URL` (no compose,
+`http://backend:8000`). Hosts do SSR limitados por `NG_ALLOWED_HOSTS`.
+
+### Via ambiente local
 
 Execute os comandos a partir de `frontend/`:
 

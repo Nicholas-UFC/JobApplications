@@ -5,7 +5,7 @@
 
 # Backend
 
-*API REST em Django + Django Ninja para o JobApplications.*
+_API REST em Django + Django Ninja para o JobApplications._
 
 [Visão geral](#visão-geral) • [Recursos](#recursos) • [Início rápido](#início-rápido) • [API](#api) • [Estrutura](#estrutura) • [Comandos](#comandos)
 
@@ -37,6 +37,22 @@ O backend expõe a API do sistema em `/api/`, com documentação interativa do D
 
   Defina `DEBUG=True` para desenvolvimento. Sem o `.env`, `SECRET_KEY` fica `None`.
 
+### Via Docker
+
+Na raiz do repositório:
+
+```powershell
+docker compose up -d --build backend
+```
+
+O `CMD` do `Dockerfile` aplica `migrate`, coleta `collectstatic`, executa
+`garantir_admin` (cria o superusuário de `ADMIN_USER`/`ADMIN_PASSWORD` se não
+existir) e sobe o servidor em `:8000`. O `depends_on` com `service_healthy`
+garante o Postgres pronto antes do boot. Com `POSTGRES_HOST` definido usa
+PostgreSQL; sem ele, SQLite local.
+
+### Via ambiente local
+
 Execute os comandos a partir de `backend/`:
 
 ```powershell
@@ -47,7 +63,8 @@ uv run python manage.py runserver
 ```
 
 > [!IMPORTANT]
-> Clone novo exige `migrate` antes de rodar: o banco SQLite é criado em `database/db.sqlite3` e não é versionado.
+> Sem Docker, clone novo exige `migrate` antes de rodar: o banco SQLite é
+> criado em `database/db.sqlite3` e não é versionado.
 
 Opcionalmente, crie um usuário para entrar no sistema e acessar o admin:
 
@@ -59,17 +76,18 @@ uv run python manage.py createsuperuser
 
 Base: `http://localhost:8000/api/`. Docs interativas: `http://localhost:8000/api/docs`.
 
-| Recurso       | Rotas principais                                                                 |
-| ------------- | -------------------------------------------------------------------------------- |
-| Autenticação  | `POST /api/auth/login`, `POST /api/auth/refresh`, `POST /api/auth/verify`, `GET /api/auth/me` |
-| Plataformas   | `GET`, `POST /api/plataforma/`; `GET`, `PUT`, `DELETE /api/plataforma/{id}`       |
-| Candidaturas  | `GET`, `POST /api/candidatura/`; `GET`, `PUT`, `DELETE /api/candidatura/{id}`     |
-| Saúde         | `GET /api/health`                                                                |
+| Recurso      | Rotas principais                                                                              |
+| ------------ | --------------------------------------------------------------------------------------------- |
+| Autenticação | `POST /api/auth/login`, `POST /api/auth/refresh`, `POST /api/auth/verify`, `GET /api/auth/me` |
+| Plataformas  | `GET`, `POST /api/plataforma/`; `GET`, `PUT`, `DELETE /api/plataforma/{id}`                   |
+| Candidaturas | `GET`, `POST /api/candidatura/`; `GET`, `PUT`, `DELETE /api/candidatura/{id}`                 |
+| Saúde        | `GET /api/health`                                                                             |
 
 As listagens aceitam `ativo`, `busca` e `ordenacao` (prefixo `-` inverte). Candidaturas também aceitam `status` e `plataforma_id`. A paginação usa `page` e `page_size`.
 
 > [!NOTE]
-> `psycopg` está nas dependências mas não é usado: o banco em desenvolvimento é SQLite.
+> Com `POSTGRES_HOST` definido (Docker) o banco é PostgreSQL via `psycopg`;
+> sem ele, o banco local é SQLite em `database/db.sqlite3`.
 
 ## Estrutura
 

@@ -5,7 +5,7 @@
 
 # JobApplications
 
-*Acompanhe candidaturas de emprego e as plataformas em que foram registradas.*
+_Acompanhe candidaturas de emprego e as plataformas em que foram registradas._
 
 [Visão geral](#visão-geral) • [Recursos](#recursos) • [Stack](#stack) • [Início rápido](#início-rápido) • [API](#api) • [Estrutura](#estrutura) • [Documentação](#documentação) • [Comandos](#comandos)
 
@@ -25,18 +25,17 @@ Aplicação full-stack para organizar a busca por emprego. O backend expõe uma 
 
 ## Stack
 
-| Camada    | Tecnologias                                              |
-| --------- | -------------------------------------------------------- |
-| Backend   | Python 3.14+, Django 6.1, Django Ninja, JWT, SQLite      |
-| Frontend  | Angular 22, Angular Material, TypeScript, SCSS, SSR      |
-| Qualidade | pytest, Ruff, Bandit, Vitest, Prettier                   |
+| Camada    | Tecnologias                                         |
+| --------- | --------------------------------------------------- |
+| Backend   | Python 3.14+, Django 6.1, Django Ninja, JWT, SQLite |
+| Frontend  | Angular 22, Angular Material, TypeScript, SCSS, SSR |
+| Qualidade | pytest, Ruff, Bandit, Vitest, Prettier              |
 
 ## Início rápido
 
-### Pré-requisitos
+### Via Docker (recomendado)
 
-- [Python](https://www.python.org/) 3.14 ou superior e [uv](https://docs.astral.sh/uv/)
-- [Node.js](https://nodejs.org/) e npm (o projeto usa npm 11)
+Pré-requisito: [Docker](https://www.docker.com/) com Compose.
 
 1. Crie o arquivo de ambiente na raiz do repositório:
 
@@ -44,9 +43,38 @@ Aplicação full-stack para organizar a busca por emprego. O backend expõe uma 
    Copy-Item .env.example .env
    ```
 
-   Defina `SECRET_KEY` com uma chave segura e `DEBUG=True` para desenvolvimento.
+   Defina `SECRET_KEY` com uma chave segura, `DEBUG=True` para desenvolvimento
+   e `POSTGRES_PASSWORD` com senha forte. Se a porta `5432` estiver ocupada,
+   ajuste `POSTGRES_EXPOSTA` (ex.: `5433`).
 
-2. Em um terminal, instale as dependências, aplique as migrações e inicie a API:
+2. Suba a stack (Postgres + backend + frontend):
+
+   ```powershell
+   docker compose up -d --build
+   ```
+
+Abra [http://localhost:4000](http://localhost:4000). O servidor SSR encaminha
+`/api`, `/admin` e `/static` para o backend. A API responde em
+[http://localhost:8000/api/health](http://localhost:8000/api/health). O
+superusuário de `ADMIN_USER`/`ADMIN_PASSWORD` é criado no boot do backend.
+Dados do Postgres persistem no volume `pgdata`.
+
+```powershell
+docker compose ps           # estado e saúde dos serviços
+docker compose logs backend # migrações, superusuário, erros da API
+docker compose down         # parar (mantém o volume pgdata)
+docker compose down -v      # parar e apagar o banco
+```
+
+### Via ambiente local (sem Docker)
+
+Pré-requisitos: [Python](https://www.python.org/) 3.14 + [uv](https://docs.astral.sh/uv/)
+e [Node.js](https://nodejs.org/) com npm 11.
+
+1. Crie o `.env` na raiz (`Copy-Item .env.example .env`). Sem
+   `POSTGRES_HOST` o backend usa SQLite em `database/db.sqlite3`.
+
+2. Em um terminal, inicie a API:
 
    ```powershell
    cd backend
@@ -55,13 +83,9 @@ Aplicação full-stack para organizar a busca por emprego. O backend expõe uma 
    uv run python manage.py runserver
    ```
 
-3. Opcionalmente, crie um usuário para entrar no sistema e acessar o admin:
+   Opcional: `uv run python manage.py createsuperuser`.
 
-   ```powershell
-   uv run python manage.py createsuperuser
-   ```
-
-4. Em outro terminal, inicie o frontend:
+3. Em outro terminal, inicie o frontend:
 
    ```powershell
    cd frontend
@@ -69,10 +93,13 @@ Aplicação full-stack para organizar a busca por emprego. O backend expõe uma 
    npm start
    ```
 
-Abra [http://localhost:4200](http://localhost:4200). O servidor de desenvolvimento encaminha `/api`, `/admin` e `/static` para o backend em `http://localhost:8000`.
+Abra [http://localhost:4200](http://localhost:4200). O dev server encaminha
+`/api`, `/admin` e `/static` para `http://localhost:8000`.
 
 > [!IMPORTANT]
-> Clone novo exige `migrate` antes de rodar: o banco SQLite é criado em `database/db.sqlite3` e não é versionado. O arquivo `.env` deve permanecer na raiz do repositório.
+> Sem Docker, clone novo exige `migrate` antes de rodar: o banco SQLite é
+> criado em `database/db.sqlite3` e não é versionado. O arquivo `.env` deve
+> permanecer na raiz do repositório.
 
 ## API
 
@@ -81,8 +108,8 @@ Base em `http://localhost:8000/api/`, com documentação interativa do Django Ni
 | Recurso      | Rotas principais                                                                              |
 | ------------ | --------------------------------------------------------------------------------------------- |
 | Autenticação | `POST /api/auth/login`, `POST /api/auth/refresh`, `POST /api/auth/verify`, `GET /api/auth/me` |
-| Plataformas  | `GET`, `POST /api/plataforma/`; `GET`, `PUT`, `DELETE /api/plataforma/{id}`                    |
-| Candidaturas | `GET`, `POST /api/candidatura/`; `GET`, `PUT`, `DELETE /api/candidatura/{id}`                  |
+| Plataformas  | `GET`, `POST /api/plataforma/`; `GET`, `PUT`, `DELETE /api/plataforma/{id}`                   |
+| Candidaturas | `GET`, `POST /api/candidatura/`; `GET`, `PUT`, `DELETE /api/candidatura/{id}`                 |
 | Saúde        | `GET /api/health`                                                                             |
 
 As listagens aceitam paginação (`page`, `page_size`) e filtros como `ativo`, `busca` e `ordenacao` (prefixo `-` inverte). Candidaturas também aceitam `status` e `plataforma_id`. Erros seguem o contrato `{"detail": "mensagem"}`.
