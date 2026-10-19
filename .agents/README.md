@@ -21,6 +21,8 @@ repositório. Tudo aqui é versionado no Git.
 - `create-readme` — cria README.md conciso, estruturado e orientado ao projeto.
 - `codebase-design` — vocabulário e disciplina de design de módulos.
 - `domain-modeling` — glossário do domínio (`CONTEXT.md`) e ADRs.
+- `grill-with-docs` — entrevista sobre plano/design que também gera ADRs e
+  glossário.
 - `grilling` — entrevista estruturada sobre decisões.
 - `frontend-design` — direção visual intencional para UI nova ou reformulada.
 - `improve-codebase-architecture` — varredura de oportunidades de deepening.
