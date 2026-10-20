@@ -45,9 +45,14 @@ def garantir_nome_unico(
     mensagem: str,
     *,
     excluir_pk: int | None = None,
+    ignorar_caixa: bool = False,
 ) -> None:
-    """Levanta 409 se já existir outro registro com o mesmo nome."""
-    consulta = model.objects.filter(nome=nome)
+    """Levanta 409 se já existir outro registro com o mesmo nome.
+
+    Com ``ignorar_caixa``, compara sem diferenciar maiúsculas de minúsculas.
+    """
+    filtro = {"nome__iexact": nome} if ignorar_caixa else {"nome": nome}
+    consulta = model.objects.filter(**filtro)
     if excluir_pk is not None:
         consulta = consulta.exclude(pk=excluir_pk)
     if consulta.exists():

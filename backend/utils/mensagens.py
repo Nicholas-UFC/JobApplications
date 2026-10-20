@@ -5,6 +5,9 @@ ORDENACAO_INVALIDA = (
 
 # Duplicidade — HTTP 409
 PLATAFORMA_NOME_DUPLICADO = "Já existe uma Plataforma com o nome '{nome}'."
+EMPRESA_MONITORADA_NOME_DUPLICADO = (
+    "Já existe uma Empresa monitorada com o nome '{nome}'."
+)
 PLATAFORMA_EM_USO = (
     "Não é possível excluir a Plataforma '{nome}' porque existem "
     "candidaturas vinculadas a ela."

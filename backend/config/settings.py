@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "simple_history",
     "autenticacao",
     "candidatura",
+    "empresa_monitorada",
     "plataforma",
     "healthcheck",
 ]
