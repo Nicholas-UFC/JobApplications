@@ -50,33 +50,80 @@
         </mat-card-content>
     </mat-card>
 
-    <mat-card class="recentes">
-        <mat-card-header>
-            <mat-card-title class="brand-titulo">Movimento recente</mat-card-title>
-            <mat-card-subtitle>Últimas candidaturas registradas no arquivo</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-            @if (carregamento()) {
-                <div class="recentes__carregamento">
-                    <mat-spinner diameter="32" />
-                </div>
-            } @else if (recentes().length === 0) {
-                <p class="recentes__vazio">Nenhuma candidatura encontrada.</p>
-            } @else {
-                <ul class="recentes__lista">
-                    @for (item of recentes(); track item.id) {
-                        <li class="recentes__linha">
-                            <div>
-                                <p class="recentes__nome">{{ item.nome }}</p>
-                                <p class="recentes__empresa">{{ item.empresa }}</p>
-                            </div>
-                            <span class="carimbo carimbo--{{ item.status }}">{{
-                                rotulo(item.status)
-                            }}</span>
-                        </li>
-                    }
-                </ul>
-            }
-        </mat-card-content>
-    </mat-card>
+    <div class="painel__secoes">
+        <mat-card class="recentes">
+            <mat-card-header>
+                <mat-card-title class="brand-titulo">Movimento recente</mat-card-title>
+                <mat-card-subtitle>Últimas candidaturas registradas no arquivo</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+                @if (carregamento()) {
+                    <div class="recentes__carregamento">
+                        <mat-spinner diameter="32" />
+                    </div>
+                } @else if (recentes().length === 0) {
+                    <p class="recentes__vazio">Nenhuma candidatura encontrada.</p>
+                } @else {
+                    <ul class="recentes__lista">
+                        @for (item of recentes(); track item.id) {
+                            <li class="recentes__linha">
+                                <div>
+                                    <p class="recentes__nome">{{ item.nome }}</p>
+                                    <p class="recentes__empresa">{{ item.empresa }}</p>
+                                </div>
+                                <span class="carimbo carimbo--{{ item.status }}">{{
+                                    rotulo(item.status)
+                                }}</span>
+                            </li>
+                        }
+                    </ul>
+                }
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card class="empresas">
+            <mat-card-header>
+                <mat-card-title class="brand-titulo">Empresas para ficar de olho</mat-card-title>
+                <mat-card-subtitle>
+                    Acompanhe empresas de interesse e confira quando publicarem novas oportunidades.
+                </mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+                @if (carregamentoEmpresas()) {
+                    <div class="empresas__carregamento">
+                        <mat-spinner diameter="32" />
+                    </div>
+                } @else if (empresas().length === 0) {
+                    <p class="empresas__vazio">Nenhuma empresa monitorada.</p>
+                } @else {
+                    <ul class="empresas__lista">
+                        @for (empresa of empresas(); track empresa.id) {
+                            <li class="empresas__linha">
+                                <a
+                                    class="empresas__nome"
+                                    [href]="empresa.url_vagas"
+                                    target="_blank"
+                                    rel="noopener"
+                                >
+                                    {{ empresa.nome }}
+                                </a>
+                                <span class="empresas__consulta">
+                                    {{
+                                        empresa.ultima_consulta
+                                            | date: 'dd/MM/yyyy HH:mm' : 'America/Sao_Paulo'
+                                    }}
+                                </span>
+                            </li>
+                        }
+                    </ul>
+                }
+            </mat-card-content>
+            <mat-card-actions align="end">
+                <a mat-button routerLink="/empresa-monitorada">
+                    <mat-icon>business</mat-icon>
+                    Ver empresas
+                </a>
+            </mat-card-actions>
+        </mat-card>
+    </div>
 </section>

@@ -1,0 +1,49 @@
+.empresa {
+    display: flex;
+    justify-content: flex-start;
+
+    &__card {
+        width: 100%;
+        max-width: 1080px;
+        padding: 20px;
+        background-color: var(--arquivo-painel);
+        border: 1px solid var(--arquivo-linha);
+    }
+
+    &__barra {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    &__busca {
+        flex: 1;
+    }
+
+    &__tabela {
+        width: 100%;
+        background-color: transparent;
+    }
+
+    &__link {
+        overflow-wrap: anywhere;
+    }
+
+    &__acoes {
+        text-align: end;
+        white-space: nowrap;
+    }
+
+    &__carregamento {
+        display: flex;
+        justify-content: center;
+        padding: 32px;
+    }
+
+    &__vazio {
+        text-align: left;
+        padding: 32px 8px;
+        color: var(--arquivo-tinta-suave);
+    }
+}

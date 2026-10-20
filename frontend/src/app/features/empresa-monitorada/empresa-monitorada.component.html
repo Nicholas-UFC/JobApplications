@@ -1,0 +1,126 @@
+<div class="empresa">
+    <mat-card class="empresa__card">
+        <mat-card-header class="empresa__cabecalho">
+            <mat-card-title class="brand-titulo">Empresas monitoradas</mat-card-title>
+            <mat-card-subtitle>
+                Sites de vagas que você acompanha em busca de novas oportunidades
+            </mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+            <div class="empresa__barra">
+                <mat-form-field class="empresa__busca" appearance="outline">
+                    <mat-label>Pesquisar</mat-label>
+                    <mat-icon matPrefix>search</mat-icon>
+                    <input matInput [formControl]="busca" placeholder="Nome ou URL" />
+                    @if (busca.value) {
+                        <button
+                            mat-icon-button
+                            matSuffix
+                            type="button"
+                            aria-label="Limpar pesquisa"
+                            (click)="limparBusca()"
+                        >
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    }
+                </mat-form-field>
+
+                <button mat-flat-button color="primary" type="button" (click)="abrirDialog()">
+                    <mat-icon>add</mat-icon>
+                    Adicionar
+                </button>
+            </div>
+
+            @if (carregamento) {
+                <div class="empresa__carregamento">
+                    <mat-spinner diameter="40" />
+                </div>
+            } @else if (empresasLista.length === 0) {
+                <p class="empresa__vazio">Nenhuma Empresa monitorada encontrada.</p>
+            } @else {
+                <table mat-table [dataSource]="empresasLista" class="empresa__tabela">
+                    <ng-container matColumnDef="id">
+                        <th mat-header-cell *matHeaderCellDef>ID</th>
+                        <td mat-cell *matCellDef="let empresa">{{ empresa.id }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="nome">
+                        <th mat-header-cell *matHeaderCellDef>Nome</th>
+                        <td mat-cell *matCellDef="let empresa">{{ empresa.nome }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="url_vagas">
+                        <th mat-header-cell *matHeaderCellDef>URL</th>
+                        <td mat-cell *matCellDef="let empresa">
+                            <a
+                                [href]="empresa.url_vagas"
+                                target="_blank"
+                                rel="noopener"
+                                class="empresa__link"
+                            >
+                                {{ empresa.url_vagas }}
+                            </a>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="ultima_consulta">
+                        <th mat-header-cell *matHeaderCellDef>Última consulta</th>
+                        <td mat-cell *matCellDef="let empresa">
+                            {{
+                                empresa.ultima_consulta
+                                    | date: 'dd/MM/yyyy HH:mm' : 'America/Sao_Paulo'
+                            }}
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="acoes">
+                        <th mat-header-cell *matHeaderCellDef class="empresa__acoes">Ações</th>
+                        <td mat-cell *matCellDef="let empresa" class="empresa__acoes">
+                            <button
+                                mat-button
+                                color="primary"
+                                type="button"
+                                [attr.aria-label]="'Registrar consulta de ' + empresa.nome"
+                                [disabled]="consultandoId() !== null"
+                                (click)="consultar(empresa)"
+                            >
+                                <mat-icon>check_circle</mat-icon>
+                                Consultei
+                            </button>
+                            <button
+                                mat-icon-button
+                                color="primary"
+                                type="button"
+                                [attr.aria-label]="'Editar ' + empresa.nome"
+                                (click)="abrirEdicao(empresa)"
+                            >
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                            <button
+                                mat-icon-button
+                                color="warn"
+                                type="button"
+                                [attr.aria-label]="'Excluir ' + empresa.nome"
+                                (click)="confirmarExclusao(empresa)"
+                            >
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="colunas"></tr>
+                    <tr mat-row *matRowDef="let linha; columns: colunas"></tr>
+                </table>
+
+                <mat-paginator
+                    [length]="total"
+                    [pageIndex]="pagina"
+                    [pageSize]="tamanhoPagina"
+                    [pageSizeOptions]="[5, 10, 25]"
+                    (page)="paginar($event)"
+                />
+            }
+        </mat-card-content>
+    </mat-card>
+</div>

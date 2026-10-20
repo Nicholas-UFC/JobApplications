@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,17 +12,27 @@ import {
     StatusCandidatura,
 } from '../../core/models/candidatura.models';
 import { CandidaturaService } from '../../core/services/candidatura.service';
+import { EmpresaMonitorada } from '../../core/models/empresa-monitorada.models';
+import { EmpresaMonitoradaService } from '../../core/services/empresa-monitorada.service';
 import { NotificacaoService } from '../../shared/services/notificacao.service';
 
 @Component({
     selector: 'app-home',
     standalone: true,
-    imports: [MatButtonModule, MatCardModule, MatIconModule, MatProgressSpinnerModule, RouterLink],
+    imports: [
+        DatePipe,
+        MatButtonModule,
+        MatCardModule,
+        MatIconModule,
+        MatProgressSpinnerModule,
+        RouterLink,
+    ],
     templateUrl: './home.component.html',
     styleUrl: './home.component.scss',
 })
 export class Home implements OnInit {
     private readonly candidaturas = inject(CandidaturaService);
+    private readonly empresasMonitoradas = inject(EmpresaMonitoradaService);
     private readonly notificacao = inject(NotificacaoService);
 
     protected readonly trilho = STATUS_CANDIDATURA;
@@ -34,7 +45,9 @@ export class Home implements OnInit {
     });
     protected readonly total = signal(0);
     protected readonly recentes = signal<Candidatura[]>([]);
+    protected readonly empresas = signal<EmpresaMonitorada[]>([]);
     protected readonly carregamento = signal(true);
+    protected readonly carregamentoEmpresas = signal(true);
 
     ngOnInit(): void {
         forkJoin(
@@ -69,6 +82,19 @@ export class Home implements OnInit {
                 this.carregamento.set(false);
             },
         });
+
+        this.empresasMonitoradas
+            .listar({ page: 1, page_size: 100, ordenacao: 'ultima_consulta' })
+            .subscribe({
+                next: (pagina) => {
+                    this.empresas.set(pagina.items);
+                    this.carregamentoEmpresas.set(false);
+                },
+                error: (erro) => {
+                    this.notificacao.erro(erro);
+                    this.carregamentoEmpresas.set(false);
+                },
+            });
     }
 
     protected rotulo(status: StatusCandidatura): string {

@@ -31,6 +31,13 @@ export const routes: Routes = [
                         (m) => m.CandidaturaComponent,
                     ),
             },
+            {
+                path: 'empresa-monitorada',
+                loadComponent: () =>
+                    import('./features/empresa-monitorada/empresa-monitorada.component').then(
+                        (m) => m.EmpresaMonitoradaComponent,
+                    ),
+            },
         ],
     },
     {

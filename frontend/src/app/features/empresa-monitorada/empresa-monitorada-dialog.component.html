@@ -1,0 +1,52 @@
+<h2 mat-dialog-title>
+    {{ modoEdicao ? 'Editar Empresa monitorada' : 'Adicionar Empresa monitorada' }}
+</h2>
+
+<mat-dialog-content class="empresa-dialog__conteudo">
+    <form [formGroup]="formulario" (ngSubmit)="salvar()" id="form-empresa-monitorada">
+        <mat-form-field class="empresa-dialog__campo" appearance="outline">
+            <mat-label>Nome</mat-label>
+            <mat-icon matPrefix>business</mat-icon>
+            <input matInput formControlName="nome" autocomplete="off" required />
+            @if (formulario.controls.nome.hasError('required')) {
+                <mat-error>Informe o nome.</mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field class="empresa-dialog__campo" appearance="outline">
+            <mat-label>URL de vagas</mat-label>
+            <mat-icon matPrefix>link</mat-icon>
+            <input
+                matInput
+                formControlName="url_vagas"
+                type="url"
+                autocomplete="url"
+                placeholder="https://"
+                required
+            />
+            @if (formulario.controls.url_vagas.hasError('required')) {
+                <mat-error>Informe a URL de vagas.</mat-error>
+            } @else if (formulario.controls.url_vagas.hasError('pattern')) {
+                <mat-error>Informe uma URL válida.</mat-error>
+            }
+        </mat-form-field>
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="fechar()" [disabled]="carregamento">Cancelar</button>
+    <button
+        mat-flat-button
+        color="primary"
+        type="submit"
+        form="form-empresa-monitorada"
+        [disabled]="formulario.invalid || carregamento"
+    >
+        @if (carregamento) {
+            <mat-spinner diameter="20" class="empresa-dialog__spinner" />
+        } @else {
+            <mat-icon>save</mat-icon>
+        }
+        Salvar
+    </button>
+</mat-dialog-actions>

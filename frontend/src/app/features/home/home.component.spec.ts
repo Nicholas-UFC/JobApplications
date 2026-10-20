@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { CandidaturaService } from '../../core/services/candidatura.service';
+import { EmpresaMonitoradaService } from '../../core/services/empresa-monitorada.service';
 import { Home } from './home.component';
 
 const PAGINA_VAZIA = { items: [], count: 0 };
@@ -11,6 +12,7 @@ describe('Home', () => {
     let component: Home;
     let fixture: ComponentFixture<Home>;
     let service: CandidaturaService;
+    let empresas: EmpresaMonitoradaService;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
@@ -21,7 +23,9 @@ describe('Home', () => {
         fixture = TestBed.createComponent(Home);
         component = fixture.componentInstance;
         service = TestBed.inject(CandidaturaService);
+        empresas = TestBed.inject(EmpresaMonitoradaService);
         vi.spyOn(service, 'listar').mockReturnValue(of(PAGINA_VAZIA));
+        vi.spyOn(empresas, 'listar').mockReturnValue(of(PAGINA_VAZIA));
         fixture.detectChanges();
         await fixture.whenStable();
     });
@@ -35,6 +39,33 @@ describe('Home', () => {
         component['ngOnInit']();
         expect(listar).toHaveBeenCalledWith({ status: 'ENVIADO', page: 1, page_size: 1 });
         expect(listar).toHaveBeenCalledWith({ page: 1, page_size: 5 });
+    });
+
+    it('deve carregar todas as empresas monitoradas em ordem de consulta', () => {
+        const listar = vi.spyOn(empresas, 'listar').mockReturnValue(
+            of({
+                items: [
+                    {
+                        id: 1,
+                        nome: 'Acme',
+                        ativo: true,
+                        url_vagas: 'https://acme.example/vagas',
+                        ultima_consulta: '0001-01-01T00:00:00Z',
+                    },
+                ],
+                count: 1,
+            }),
+        );
+
+        component['ngOnInit']();
+
+        expect(listar).toHaveBeenCalledWith({
+            page: 1,
+            page_size: 100,
+            ordenacao: 'ultima_consulta',
+        });
+        expect(component['empresas']().length).toBe(1);
+        expect(component['carregamentoEmpresas']()).toBe(false);
     });
 
     it('deve calcular largura proporcional ao total', () => {

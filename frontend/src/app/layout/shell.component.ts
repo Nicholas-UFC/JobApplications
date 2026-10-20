@@ -37,6 +37,7 @@ export class ShellComponent implements OnInit {
         { rota: '/', icone: 'home', rotulo: 'Home' },
         { rota: '/plataforma', icone: 'public', rotulo: 'Plataforma' },
         { rota: '/candidatura', icone: 'work', rotulo: 'Candidatura' },
+        { rota: '/empresa-monitorada', icone: 'business', rotulo: 'Empresas' },
     ];
 
     sair(): void {
