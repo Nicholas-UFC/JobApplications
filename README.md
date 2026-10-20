@@ -18,6 +18,7 @@ Aplicação full-stack para organizar a busca por emprego. O backend expõe uma 
 ## Recursos
 
 - **Plataformas e Candidaturas** — cadastro, consulta, edição, exclusão, busca textual, filtros, ordenação e paginação.
+- **Empresas monitoradas** — cadastro de sites de vagas e registro manual da última consulta, com as nunca consultadas no topo.
 - **Status de Candidatura** — enviado, rejeitado, entrevista, proposta recebida e aprovada.
 - **Autenticação JWT** — login, renovação de token com blacklist e proteção de rotas no frontend.
 - **Histórico e admin** — histórico de alterações (`simple_history`) e painel administrativo com Jazzmin.
@@ -110,9 +111,10 @@ Base em `http://localhost:8000/api/`, com documentação interativa do Django Ni
 | Autenticação | `POST /api/auth/login`, `POST /api/auth/refresh`, `POST /api/auth/verify`, `GET /api/auth/me` |
 | Plataformas  | `GET`, `POST /api/plataforma/`; `GET`, `PUT`, `DELETE /api/plataforma/{id}`                   |
 | Candidaturas | `GET`, `POST /api/candidatura/`; `GET`, `PUT`, `DELETE /api/candidatura/{id}`                 |
+| Empresas     | `GET`, `POST /api/empresa-monitorada/`; `GET`, `PUT`, `DELETE /api/empresa-monitorada/{id}`; `POST /api/empresa-monitorada/{id}/consultar` |
 | Saúde        | `GET /api/health`                                                                             |
 
-As listagens aceitam paginação (`page`, `page_size`) e filtros como `ativo`, `busca` e `ordenacao` (prefixo `-` inverte). Candidaturas também aceitam `status` e `plataforma_id`. Erros seguem o contrato `{"detail": "mensagem"}`.
+As listagens aceitam paginação (`page`, `page_size`) e filtros como `ativo`, `busca` e `ordenacao` (prefixo `-` inverte). Candidaturas também aceitam `status` e `plataforma_id`. Empresas monitoradas ordenam por `ultima_consulta` (nunca consultadas primeiro) e têm `url_vagas`. Erros seguem o contrato `{"detail": "mensagem"}`.
 
 ## Estrutura
 

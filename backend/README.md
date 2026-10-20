@@ -18,6 +18,7 @@ O backend expõe a API do sistema em `/api/`, com documentação interativa do D
 ## Recursos
 
 - CRUD de Plataformas e Candidaturas, com busca textual, filtros, ordenação e paginação.
+- CRUD de Empresas monitoradas com registro manual da última consulta do site de vagas.
 - Status de Candidatura: enviado, rejeitado, entrevista, proposta recebida e aprovada.
 - Autenticação JWT com renovação e blacklist de refresh tokens.
 - Histórico de alterações (`simple_history`) e painel admin com Jazzmin.
@@ -81,9 +82,10 @@ Base: `http://localhost:8000/api/`. Docs interativas: `http://localhost:8000/api
 | Autenticação | `POST /api/auth/login`, `POST /api/auth/refresh`, `POST /api/auth/verify`, `GET /api/auth/me` |
 | Plataformas  | `GET`, `POST /api/plataforma/`; `GET`, `PUT`, `DELETE /api/plataforma/{id}`                   |
 | Candidaturas | `GET`, `POST /api/candidatura/`; `GET`, `PUT`, `DELETE /api/candidatura/{id}`                 |
+| Empresas     | `GET`, `POST /api/empresa-monitorada/`; `GET`, `PUT`, `DELETE /api/empresa-monitorada/{id}`; `POST /api/empresa-monitorada/{id}/consultar` |
 | Saúde        | `GET /api/health`                                                                             |
 
-As listagens aceitam `ativo`, `busca` e `ordenacao` (prefixo `-` inverte). Candidaturas também aceitam `status` e `plataforma_id`. A paginação usa `page` e `page_size`.
+As listagens aceitam `ativo`, `busca` e `ordenacao` (prefixo `-` inverte). Candidaturas também aceitam `status` e `plataforma_id`. Empresas monitoradas ordenam por `ultima_consulta` por padrão. A paginação usa `page` e `page_size`.
 
 > [!NOTE]
 > Com `POSTGRES_HOST` definido (Docker) o banco é PostgreSQL via `psycopg`;
@@ -96,6 +98,7 @@ backend/
 ├── autenticacao/   # Rotas de login e /me (sem models)
 ├── plataforma/     # Model, schemas, router e admin de Plataforma
 ├── candidatura/    # Model, schemas, router e admin de Candidatura
+├── empresa_monitorada/ # Model, schemas, router e admin de EmpresaMonitorada
 ├── healthcheck/    # Health check público
 ├── utils/          # BaseModel, schemas base, listagem, CRUD, ordenação, mensagens, exceções
 ├── config/         # settings.py, urls.py (montagem em /api/ e /admin/)

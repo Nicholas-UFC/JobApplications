@@ -5,7 +5,7 @@
 
 # Frontend
 
-_Interface Angular do JobApplications, com autenticação e gestão de Candidaturas e Plataformas._
+_Interface Angular do JobApplications, com autenticação e gestão de Candidaturas, Plataformas e Empresas monitoradas._
 
 [Visão geral](#visão-geral) • [Rotas](#rotas) • [Início rápido](#início-rápido) • [Estrutura](#estrutura) • [Comandos](#comandos)
 
@@ -23,6 +23,7 @@ Aplicação Angular 22 com Angular Material e SSR. O dev server usa `proxy.conf.
 | `/`            | Home                                     | Autenticado |
 | `/plataforma`  | Lista, cria, edita e exclui Plataformas  | Autenticado |
 | `/candidatura` | Lista, cria, edita e exclui Candidaturas | Autenticado |
+| `/empresa-monitorada` | Lista, cria, edita, exclui e registra consultas de Empresas monitoradas | Autenticado |
 
 As rotas autenticadas passam pelo `authGuard` dentro do `ShellComponent`. O menu lateral inclui link para o `/admin/` do Django quando o usuário é admin.
 
@@ -64,13 +65,13 @@ Abra [http://localhost:4200](http://localhost:4200).
 
 ```text
 frontend/src/app/
-├── core/      # guards, interceptors, models e services (auth, token, plataforma, candidatura)
-├── features/  # telas: login, home, plataforma, candidatura
+├── core/      # guards, interceptors, models e services (auth, token, plataforma, candidatura, empresa monitorada)
+├── features/  # telas: login, home, plataforma, candidatura, empresa-monitorada
 ├── layout/    # shell com menu lateral e toolbar
 └── shared/    # components, listagem, dialogo-salvar, models, services, utils
 ```
 
-Os módulos compartilhados concentram o comportamento repetido: `shared/listagem/` orquestra busca, paginação e exclusão das duas telas; `shared/dialogo-salvar/` orquestra o salvar dos dois diálogos; `shared/components/confirmacao-exclusao-dialog/` é a confirmação neutra usada por ambos.
+Os módulos compartilhados concentram o comportamento repetido: `shared/listagem/` orquestra busca, paginação e exclusão das telas; `shared/dialogo-salvar/` orquestra o salvar dos diálogos; `shared/components/confirmacao-exclusao-dialog/` é a confirmação neutra usada por eles.
 
 > [!NOTE]
 > `AuthService` guarda os tokens em `localStorage` via helper SSR-safe: `localStorage` é indefinido no servidor. `NotificacaoService.erro()` depende do contrato de erro `{"detail": ...}` da API.

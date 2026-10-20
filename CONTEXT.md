@@ -19,3 +19,14 @@ _Avoid_: Aplicação, vaga, inscrição.
 Estágio de uma Candidatura no processo seletivo: Enviado, Rejeitado,
 Entrevista, Proposta Recebida ou Aprovada.
 _Avoid_: Estado, fase, situação.
+
+**EmpresaMonitorada**:
+Organização cujo site de vagas o usuário acompanha em busca de novas
+oportunidades. Não se confunde com o campo `empresa` de uma Candidatura.
+_Avoid_: Empresa, companhia, alvo.
+
+**Última consulta**:
+Momento em que o site de vagas de uma EmpresaMonitorada foi verificado pela
+última vez. Empresas nunca consultadas usam a data sentinel
+`0001-01-01T00:00:00`.
+_Avoid_: Última verificação, última checagem.

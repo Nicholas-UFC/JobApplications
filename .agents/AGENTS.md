@@ -37,7 +37,11 @@ siga esse padrão.
 - Montada em `/api/` (`config/urls.py`); admin Django em `/admin/`.
 - Autenticação JWT global (`JWTAuth`); rotas públicas declaram `auth=None`.
 - Endpoints JWT: `/api/auth/login|refresh|verify`; `/api/auth/me` é autenticado.
-- Apps: `autenticacao` (sem models), `plataforma`, `candidatura`, `healthcheck`.
+- `empresa_monitorada`: CRUD em `/api/empresa-monitorada/`; `POST .../{id}/consultar`
+  grava `ultima_consulta` com `timezone.now()`. Nunca consultada usa o sentinel
+  `0001-01-01T00:00:00Z`; `nome` é único sem diferenciar caixa.
+- Apps: `autenticacao` (sem models), `plataforma`, `candidatura`,
+  `empresa_monitorada`, `healthcheck`.
 - `utils/`: `BaseModel` (nome, ativo, timestamps, `simple_history`), schemas
   base, `mensagens.py`, handler global de exceções (`{"detail": ...}`; em
   `DEBUG` relança).
